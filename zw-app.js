@@ -4,7 +4,7 @@
    APP_VERSION wird bei jedem Update erhöht; sw.js muss dieselbe Nummer tragen. */
 (function () {
   "use strict";
-  var APP_VERSION = "2.0.0";
+  var APP_VERSION = "2.1.0";
   window.ZW_APP_VERSION = APP_VERSION;
 
   // ---------- Warten auf Login ----------
