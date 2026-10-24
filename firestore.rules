@@ -1,0 +1,38 @@
+rules_version = '2';
+// Zugriff nur für freigeschaltete Personen (Sammlung "Mitglieder", Dokument-ID = E-Mail in Kleinbuchstaben).
+// Rollen: admin (alles + Team), bearbeiten (Daten ändern), lesen (nur ansehen).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function mail() { return request.auth.token.email.lower(); }
+    function signedIn() { return request.auth != null && request.auth.token.email != null; }
+    function m() { return get(/databases/$(database)/documents/Mitglieder/$(mail())).data; }
+    function member() { return signedIn() && exists(/databases/$(database)/documents/Mitglieder/$(mail())); }
+    function rolle() { return string(m().rolle).trim().lower(); }
+    // Inhaber: hat immer Admin-Rechte und darf seinen eigenen Eintrag anlegen.
+    function owner() { return signedIn() && mail() == "INHABER_EMAIL"; }
+    function admin() { return owner() || (member() && rolle() == "admin"); }
+    function inside() { return owner() || member(); }
+    function writer() { return admin() || (member() && rolle() == "bearbeiten"); }
+
+    match /Mitglieder/{email} {
+      allow read: if signedIn() && (email == mail() || admin());
+      allow write: if admin();
+    }
+    match /inhalt/{doc} {
+      allow read: if inside();
+      allow write: if owner();
+    }
+    match /nutzer/{uid} {
+      allow read: if inside();
+      allow write: if inside() && request.auth.uid == uid;
+    }
+    match /bereiche/{doc} {
+      allow read: if inside();
+      allow write: if writer();
+    }
+    match /einstellungen/{doc} {
+      allow read: if inside();
+      allow write: if writer();
+    }
+  }
+}
