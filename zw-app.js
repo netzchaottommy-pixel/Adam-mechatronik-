@@ -4,7 +4,7 @@
    APP_VERSION wird bei jedem Update erhöht; sw.js muss dieselbe Nummer tragen. */
 (function () {
   "use strict";
-  var APP_VERSION = "2.7.0";
+  var APP_VERSION = "2.7.1";
   window.ZW_APP_VERSION = APP_VERSION;
 
   // ---------- Warten auf Login ----------
@@ -302,11 +302,22 @@
     }).then(function (t) { return JSON.parse(t); });
   }
   // Marktanalyse: eigene Datei, wird bei jedem Öffnen frisch geladen (wöchentlich aktualisiert)
-  var contentKey = null;
+  var contentKey = null, marktPriv = null;
   function loadMarkt() {
     if (!contentKey) return;
     fetch("markt.bin?t=" + Date.now(), { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("markt " + r.status); return r.arrayBuffer(); })
-      .then(function (b) { b = new Uint8Array(b); return crypto.subtle.decrypt({ name: "AES-GCM", iv: b.slice(0, 12) }, contentKey, b.slice(12)); })
+      .then(function (b) {
+        b = new Uint8Array(b);
+        if (b[0] === 77 && b[1] === 75 && b[2] === 50) {   // "MK2": AES-Schlüssel mit RSA-OAEP verschlüsselt
+          if (!marktPriv) throw new Error("kein Marktschlüssel");
+          var n = (b[3] << 8) | b[4], ek = b.slice(5, 5 + n), iv = b.slice(5 + n, 17 + n), ct = b.slice(17 + n);
+          return crypto.subtle.importKey("pkcs8", b64bytes(marktPriv), { name: "RSA-OAEP", hash: "SHA-256" }, false, ["decrypt"])
+            .then(function (pk) { return crypto.subtle.decrypt({ name: "RSA-OAEP" }, pk, ek); })
+            .then(function (raw) { return crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]); })
+            .then(function (ak) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, ak, ct); });
+        }
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b.slice(0, 12) }, contentKey, b.slice(12));
+      })
       .then(function (p) { return new Response(new Blob([p]).stream().pipeThrough(new DecompressionStream("gzip"))).text(); })
       .then(function (t) { window.ZW_MARKT = JSON.parse(t); window.dispatchEvent(new Event("zw-markt")); })
       .catch(function () {});
@@ -373,7 +384,7 @@
         fs.doc("nutzer/" + u.uid).set({ name: u.displayName || member.name || u.email, photo: u.photoURL || "", zuletzt: Date.now() }, { merge: true }).catch(function () {});
         gate('<h1 id="zw-gt">Einen Moment …</h1><p>Inhalte werden geladen.</p>');
         loadContent().then(function (bundle) {
-          window.ADAM_START = bundle.start;
+          window.ADAM_START = bundle.start; marktPriv = bundle.mk || null;
           var seed = (rolle() === "admin" && window.ADAM_START) ? fs.collection("bereiche").limit(1).get().then(function (q) {
             if (!q.empty) return;
             var b = fs.batch();

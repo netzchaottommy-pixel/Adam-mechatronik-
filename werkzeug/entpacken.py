@@ -13,4 +13,5 @@ json.dump(d["start"], open(os.path.join(Q, "startdaten.json"), "w", encoding="ut
 for n, a in d["assets"].items():
     open(os.path.join(Q, "dateien", n), "wb").write(base64.b64decode(a["b64"]))
 json.dump({n: a["type"] for n, a in d["assets"].items()}, open(os.path.join(Q, "dateien.json"), "w"), indent=1)
+if d.get("mk"): open(os.path.join(H, ".markt_privat"), "w").write(d["mk"])
 print("entpackt nach", Q)

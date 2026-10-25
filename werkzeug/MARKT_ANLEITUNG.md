@@ -1,23 +1,22 @@
-# Marktanalyse ZW-1 – wöchentliche Aktualisierung
+# Marktanalyse – wöchentliche Aktualisierung
 
-Die Seite „Marktanalyse“ in der App liest `markt.bin` (verschlüsselt, gleicher Schlüssel wie `inhalt.bin`).
-Sie wird bei jedem Öffnen frisch geladen – kein neues App-Update nötig.
+Die Seite „Marktanalyse“ in der App liest `markt.bin`. Die Datei wird mit dem **öffentlichen** Schlüssel
+`werkzeug/markt_public.pem` verschlüsselt – zum Aktualisieren braucht man also kein Geheimnis.
+Lesen kann sie nur die App nach dem Login. Die App lädt sie bei jedem Öffnen frisch und merkt sich den
+Änderungsverlauf selbst.
 
-Ablauf:
-1. `python3 werkzeug/markt.py entpacken <SCHLUESSEL>` → `werkzeug/markt/markt.json`
-2. Im Web recherchieren: Wettbewerber (Preise, neue Produkte, Übernahmen), Marktzahlen, Förderprogramme,
-   Konjunktur im Verarbeitenden Gewerbe, neue Anbieter günstiger OEE-/Stückzahl-Boxen.
-3. `markt.json` aktualisieren – Struktur beibehalten:
-   - `stand`: heutiges Datum (JJJJ-MM-TT)
-   - `fazit.ampel`: `gruen` | `gelbgruen` | `gelb` | `rot`; `fazit.titel`, `fazit.text`
-   - `kennzahlen[]`: {wert, label, quelle = Index in `quellen`}
+Ablauf für die wöchentliche Aktualisierung:
+1. Im Web recherchieren (Wettbewerber, Preise, Marktzahlen, Konjunktur, Förderprogramme).
+2. `werkzeug/markt/markt.json` komplett neu schreiben (Ordner anlegen), Felder:
+   - `stand`: heutiges Datum (JJJJ-MM-TT), `rhythmus`: "jeden Montag automatisch"
+   - `fazit`: {ampel: gruen | gelbgruen | gelb | rot, titel, text}
+   - `kennzahlen[]`: {wert, label, quelle = Index in `quellen`} – 4 Stück
+   - `markt[]`, `zielgruppen[]`, `naechste[]`: kurze deutsche Sätze
    - `wettbewerb[]`: {name, art, preis, plus, minus, quelle}
    - `swot`: {staerken[], schwaechen[], chancen[], risiken[]}
-   - `markt[]`, `zielgruppen[]`, `naechste[]`: kurze deutsche Sätze
    - `preis`: {vorschlag, begruendung[], szenario}
-   - `aenderungen[]`: neuen Eintrag VORNE einfügen {datum, text} – was sich seit letzter Woche geändert hat
-     (oder „Keine wesentlichen Änderungen.“); höchstens 20 Einträge behalten
+   - `aenderungen[]`: Neuigkeiten der letzten 7 Tage als {datum, text}; gibt es keine: [{datum, "Keine wesentlichen Neuigkeiten."}]
    - `quellen[]`: {titel, url} – nur echte, geprüfte Links
-   Sprache: einfaches Deutsch, keine erfundenen Zahlen; unsichere Angaben als „ca.“ oder „laut Anbieter“.
-4. `python3 werkzeug/markt.py packen <SCHLUESSEL>`
-5. Nur `markt.bin` committen und pushen. Niemals `werkzeug/markt/`, `werkzeug/quelle/` oder den Schlüssel committen.
+   Einfaches Deutsch, keine erfundenen Zahlen; Unsicheres als „ca.“ oder „laut Anbieter“ kennzeichnen.
+3. `python3 -I werkzeug/markt.py packen`
+4. Nur `markt.bin` committen und auf `main` pushen. `werkzeug/markt/` nie committen.

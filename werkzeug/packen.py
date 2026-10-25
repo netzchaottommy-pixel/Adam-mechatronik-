@@ -9,6 +9,8 @@ types = json.load(open(os.path.join(Q, "dateien.json")))
 bundle = {"page": open(os.path.join(Q, "seite.html"), encoding="utf-8").read(),
           "start": json.load(open(os.path.join(Q, "startdaten.json"), encoding="utf-8")),
           "assets": {n: {"type": t, "b64": base64.b64encode(open(os.path.join(Q, "dateien", n), "rb").read()).decode()} for n, t in types.items()}}
+MK = os.path.join(H, ".markt_privat")
+if os.path.exists(MK): bundle["mk"] = open(MK).read().strip()
 iv = secrets.token_bytes(12)
 open(os.path.join(R, "inhalt.bin"), "wb").write(iv + AESGCM(key).encrypt(iv, gzip.compress(json.dumps(bundle, ensure_ascii=False).encode(), 9), None))
 for f, pat, rep in (("sw.js", r'var VERSION = "[^"]*"', 'var VERSION = "%s"' % new),
