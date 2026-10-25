@@ -4,7 +4,7 @@
    APP_VERSION wird bei jedem Update erhöht; sw.js muss dieselbe Nummer tragen. */
 (function () {
   "use strict";
-  var APP_VERSION = "2.6.0";
+  var APP_VERSION = "2.7.0";
   window.ZW_APP_VERSION = APP_VERSION;
 
   // ---------- Warten auf Login ----------
@@ -290,7 +290,7 @@
       var e0 = new Error("Dieser Browser ist zu alt für die geschützte App. Bitte iPadOS/Browser aktualisieren."); e0.code = "old"; return Promise.reject(e0);
     }
     return Promise.all([
-      getKey().then(function (k) { return crypto.subtle.importKey("raw", b64bytes(k), "AES-GCM", false, ["decrypt"]); }),
+      getKey().then(function (k) { return crypto.subtle.importKey("raw", b64bytes(k), "AES-GCM", false, ["decrypt"]); }).then(function (ck) { contentKey = ck; return ck; }),
       fetch("inhalt.bin?v=" + APP_VERSION).then(function (r) { if (!r.ok) throw new Error("inhalt.bin " + r.status); return r.arrayBuffer(); })
     ]).then(function (x) {
       var buf = new Uint8Array(x[1]);
@@ -301,6 +301,17 @@
       return new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
     }).then(function (t) { return JSON.parse(t); });
   }
+  // Marktanalyse: eigene Datei, wird bei jedem Öffnen frisch geladen (wöchentlich aktualisiert)
+  var contentKey = null;
+  function loadMarkt() {
+    if (!contentKey) return;
+    fetch("markt.bin?t=" + Date.now(), { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("markt " + r.status); return r.arrayBuffer(); })
+      .then(function (b) { b = new Uint8Array(b); return crypto.subtle.decrypt({ name: "AES-GCM", iv: b.slice(0, 12) }, contentKey, b.slice(12)); })
+      .then(function (p) { return new Response(new Blob([p]).stream().pipeThrough(new DecompressionStream("gzip"))).text(); })
+      .then(function (t) { window.ZW_MARKT = JSON.parse(t); window.dispatchEvent(new Event("zw-markt")); })
+      .catch(function () {});
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") loadMarkt(); });
   function injectPage(bundle) {
     var page = bundle.page;
     Object.keys(bundle.assets || {}).forEach(function (name) {
@@ -371,7 +382,7 @@
           }).catch(function () {}) : Promise.resolve();
           return seed.then(function () { return injectPage(bundle); });
         }).then(function () {
-          closeGate(); resolveAuth(true);
+          closeGate(); resolveAuth(true); loadMarkt();
           var tries = 0, iv = setInterval(function () { hookWho(); if (document.getElementById("who") && document.getElementById("who").dataset.zw || ++tries > 40) clearInterval(iv); }, 250);
         }, contentError);
       }, function (e) {
