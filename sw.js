@@ -1,6 +1,6 @@
 /* Service Worker: macht die App offline-fähig und erkennt neue Versionen.
    VERSION wird beim Build gesetzt. Neue Version = neuer Cache = Update-Hinweis in der App. */
-var VERSION = "2.5.1";
+var VERSION = "2.6.0";
 var CACHE = "zw-" + VERSION;
 var CORE = ["./", "index.html", "zw-app.js", "firebase-config.js", "inhalt.bin", "manifest.webmanifest",
   "lib/three.min.js", "lib/OrbitControls.js", "lib/RoundedBoxGeometry.js", "lib/RoomEnvironment.js", "lib/GLTFLoader.js",
