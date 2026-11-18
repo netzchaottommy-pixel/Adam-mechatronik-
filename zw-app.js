@@ -4,7 +4,7 @@
    APP_VERSION wird bei jedem Update erhöht; sw.js muss dieselbe Nummer tragen. */
 (function () {
   "use strict";
-  var APP_VERSION = "2.9.1";
+  var APP_VERSION = "3.0.0";
   window.ZW_APP_VERSION = APP_VERSION;
 
   // ---------- Warten auf Login ----------
@@ -323,6 +323,14 @@
       .catch(function () {});
   }
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") loadMarkt(); });
+  // Verschlüsselte Zusatzdatei (z. B. firmware.bin) laden – nur nach Login möglich
+  window.zwLoadEncrypted = function (url) {
+    if (!contentKey) return Promise.reject(new Error("nicht angemeldet"));
+    return fetch(url + "?t=" + Date.now(), { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error(url + " " + r.status); return r.arrayBuffer(); })
+      .then(function (b) { b = new Uint8Array(b); return crypto.subtle.decrypt({ name: "AES-GCM", iv: b.slice(0, 12) }, contentKey, b.slice(12)); })
+      .then(function (p) { return new Response(new Blob([p]).stream().pipeThrough(new DecompressionStream("gzip"))).text(); })
+      .then(function (t) { return JSON.parse(t); });
+  };
   function injectPage(bundle) {
     var page = bundle.page;
     Object.keys(bundle.assets || {}).forEach(function (name) {

@@ -1,6 +1,6 @@
 /* Service Worker: macht die App offline-fähig und erkennt neue Versionen.
    VERSION wird beim Build gesetzt. Neue Version = neuer Cache = Update-Hinweis in der App. */
-var VERSION = "2.9.1";
+var VERSION = "3.0.0";
 var CACHE = "zw-" + VERSION;
 var CORE = ["./", "index.html", "zw-app.js", "firebase-config.js", "inhalt.bin", "manifest.webmanifest",
   "lib/three.min.js", "lib/OrbitControls.js", "lib/RoundedBoxGeometry.js", "lib/RoomEnvironment.js", "lib/GLTFLoader.js",
@@ -15,7 +15,7 @@ self.addEventListener("message", function (e) { if (e.data === "skipWaiting") se
 self.addEventListener("fetch", function (e) {
   var req = e.request, url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== location.origin) return;   // Firebase & Google laufen direkt
-  if (/\/markt\.bin$/.test(url.pathname)) {   // Marktanalyse: immer frisch, offline aus dem Cache
+  if (/\/(markt|firmware)\.bin$/.test(url.pathname)) {   // Marktanalyse/Firmware: immer frisch, offline aus dem Cache
     e.respondWith(caches.open(CACHE).then(function (c) { return fetch(req).then(function (res) { if (res && res.ok) c.put(url.pathname, res.clone()); return res; }).catch(function () { return c.match(url.pathname); }); }));
     return;
   }
