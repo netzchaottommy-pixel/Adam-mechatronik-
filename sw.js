@@ -1,6 +1,6 @@
 /* Service Worker: macht die App offline-fähig und erkennt neue Versionen.
    VERSION wird beim Build gesetzt. Neue Version = neuer Cache = Update-Hinweis in der App. */
-var VERSION = "3.1.0";
+var VERSION = "3.1.1";
 var CACHE = "zw-" + VERSION;
 var CORE = ["./", "index.html", "zw-app.js", "firebase-config.js", "inhalt.bin", "manifest.webmanifest",
   "lib/three.min.js", "lib/OrbitControls.js", "lib/RoundedBoxGeometry.js", "lib/RoomEnvironment.js", "lib/GLTFLoader.js",
@@ -19,10 +19,18 @@ self.addEventListener("fetch", function (e) {
     e.respondWith(caches.open(CACHE).then(function (c) { return fetch(req).then(function (res) { if (res && res.ok) c.put(url.pathname, res.clone()); return res; }).catch(function () { return c.match(url.pathname); }); }));
     return;
   }
+  if (req.mode === "navigate") {   // Seite selbst: immer zuerst aus dem Netz, sonst aus dem Cache
+    e.respondWith(fetch(req).catch(function () {
+      return caches.open(CACHE).then(function (c) { return c.match("./").then(function (h) { return h || c.match("index.html"); }); })
+        .then(function (h) { return h || Response.error(); });
+    }));
+    return;
+  }
   e.respondWith(caches.open(CACHE).then(function (c) {
     return c.match(req, { ignoreSearch: true }).then(function (hit) {
       var net = fetch(req).then(function (res) { if (res && res.ok) c.put(req, res.clone()); return res; });
-      return hit || net;          // aus dem Cache dieser Version, sonst Netz
+      if (hit) { net.catch(function () {}); return hit; }
+      return net;                 // aus dem Cache dieser Version, sonst Netz
     });
-  }));
+  }).catch(function () { return fetch(req); }));
 });
