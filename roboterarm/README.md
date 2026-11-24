@@ -230,7 +230,16 @@ Der letzte Punkt sollte bei Basis 0° liegen.
 
 ---
 
-## 6. Maße anpassen
+## 6. Onshape (animieren)
+
+Im Ordner `onshape/` liegt `Roboterarm_AM-R1.fs`, ein Feature Studio für Onshape.
+- Es baut das komplette Modell mit allen Teilen und Kaufteilen direkt in Onshape auf.
+- An allen Gelenken liegen Mate Connectors.
+- So geht's: Code einfügen, das Feature „Roboterarm AM-R1“ einfügen, im Assembly Gruppen und Revolute Mates setzen, dann animieren.
+
+Schritt für Schritt: [onshape/ANLEITUNG_ONSHAPE.md](onshape/ANLEITUNG_ONSHAPE.md)
+
+## 7. Maße anpassen
 
 Alles steht in `cad/roboterarm.scad`. Bitte nachmessen (Kommentar `MESSEN`):
 - `horn_abst`: Ohr-Oberseite bis Fläche der Servoscheibe (DS3218 und MG996R)
