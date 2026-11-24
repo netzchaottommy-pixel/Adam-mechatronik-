@@ -514,7 +514,7 @@ function kegel(w is map, p1 is array, p2 is array, d1 is number, d2 is number) r
 function kugel(w is map, p is array, d is number) returns Query
 {
     const i = nid(w);
-    fSphere(w.ctx, i, { "center" : V(p), "radius" : d / 2 * millimeter });
+    opSphere(w.ctx, i, { "center" : V(p), "radius" : d / 2 * millimeter });
     return qCreatedBy(i, EntityType.BODY);
 }
 
