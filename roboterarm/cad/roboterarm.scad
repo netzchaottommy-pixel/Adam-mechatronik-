@@ -1,97 +1,101 @@
 // =====================================================================
-//  Roboterarm "AM-R1" – komplett 3D-gedruckt
-//  Fin-Ray-Greifer (TPU), Basis 1:5 mit 28BYJ-48, Schulter/Ellbogen MG996R,
-//  Greifer SG90, Drehteller auf 4 Kugellagern 6801-2RS (12x21x5)
+//  Roboterarm "AM-R1" Version 2  –  geschlossen, 500 g Nutzlast
 //
-//  Bedienung:  in OpenSCAD die Variable  teil  setzen und mit F6 rendern,
-//              danach Datei > Export > STL.  Oder per Kommandozeile:
-//              openscad -D 'teil="basis"' -o basis.stl roboterarm.scad
-//  Alle Maße in mm.  Werte mit "MESSEN" bitte an deinen Teilen nachmessen.
+//  Basis      28BYJ-48 + Zahnräder 1:5, Drehteller auf 4 Lagern 6801, Ø 220
+//  Schulter   DS3218 (270°) + Zahnräder 1:2, Welle beidseitig gelagert
+//  Ellbogen   DS3218 (270°) + Zahnräder 1:2 -> Kurbel -> Koppelstange
+//             (Kurbel, Stange und Hebel liegen IM Oberarm-Kasten)
+//  Greifer    MG996R, Fin-Ray-Finger aus TPU, eigenes Gehäuse
+//  Lager      11 x 6801-2RS (12 x 21 x 5)
+//
+//  Export:  openscad -D 'teil="basis"' -o basis.stl roboterarm.scad
+//  Werte mit "MESSEN" an deinen Teilen prüfen.
 // =====================================================================
 
-teil = "zusammenbau";   // siehe Liste ganz unten
+teil = "zusammenbau";
 
 $fn = 64;
-sp  = 0.2;              // Spiel für Passungen (Bambu P2S: 0.2 passt meist)
 
 // ---------- Kugellager 6801-2RS ----------
-lager_D = 21.0;         // außen   (gemessen 21.05)
-lager_d = 12.0;         // innen   (gemessen 12.04)
-lager_b = 5.0;          // breit   (gemessen 4.98)
+lager_D = 21.0;  lager_d = 12.0;  lager_b = 5.0;
+sitz_D  = lager_D - 0.05;      // Presssitz
+lippe_D = 16;                  // Loch hinter dem Lager (Innenring bleibt frei)
 
 // ---------- Basis ----------
-basis_r   = 90;         // Ø 180
-boden_t   = 3;
-basis_h   = 55;         // Wandhöhe
-innen_r1  = 66;         // Innenwand (Sandkammer innen)
-innen_r2  = 70;
-aussen_t  = 2.4;
-deckel_t  = 4;          // Deckelring auf der Sandkammer
-rolle_r   = 78;         // Radius, auf dem die Lager laufen
-rolle_anz = 4;
-achse_h   = lager_D/2 + 2;                     // Achsmitte über Deckelring
-deckel_oben = basis_h + deckel_t;              // 59
-tt_unten  = deckel_oben + achse_h + lager_D/2; // Unterseite Drehteller (82)
-tt_t      = 8;
-tt_oben   = tt_unten + tt_t;                   // 90
-tt_r      = 86;
-saeule_r  = 15;         // Mittelsäule (Kabel innen)
-kabel_r   = 8;
+basis_r = 110;  boden_t = 3;  basis_h = 55;
+innen_r1 = 66;  innen_r2 = 70;  aussen_t = 2.4;
+deckel_t = 4;   rolle_r = 88;   rolle_anz = 4;
+achse_h  = lager_D/2 + 2;
+deckel_oben = basis_h + deckel_t;
+tt_unten = deckel_oben + achse_h + lager_D/2;   // 82
+tt_t = 8;  tt_oben = tt_unten + tt_t;          // 90
+tt_r = 106;
+schuerze_r = basis_r + 1;                      // Schürze über den Spalt
+saeule_r = 15;  kabel_r = 8;
 
-// ---------- Zahnräder Basis 1:5 ----------
-zr_m   = 1.25;
-zr_z1  = 15;            // Ritzel am Schrittmotor
-zr_z2  = 75;            // Zahnkranz am Drehteller
-zr_a   = zr_m*(zr_z1+zr_z2)/2 + 0.15;          // Achsabstand + Spiel
-kranz_ri = 40;          // Innenradius Zahnkranz-Ring
-kranz_unten = tt_unten - 8;                    // Zahnkranz 8 mm hoch
+zr_m = 1.25;  zr_z1 = 15;  zr_z2 = 75;          // Basis 1:5
+zr_a = zr_m*(zr_z1+zr_z2)/2 + 0.15;
+kranz_ri = 40;  kranz_unten = tt_unten - 8;
 
-// ---------- Schrittmotor 28BYJ-48 ----------
-sm_welle_l = 10;        // Ohr-Unterseite bis Wellenende   MESSEN
-sm_versatz = 8;         // Welle zu Gehäusemitte
-sm_ohr     = 17.5;      // Ohrlöcher +-17.5 (35 mm)
+sm_welle_l = 10;   // 28BYJ-48: Ohr-Unterseite bis Wellenende   MESSEN
+sm_versatz = 8;  sm_ohr = 17.5;
 ritzel_oben = tt_unten - 0.5;
-sm_ohr_z   = ritzel_oben - sm_welle_l;         // Oberkante Säulen
+sm_ohr_z = ritzel_oben - sm_welle_l;
+lsk_z = tt_unten - 5;  rock_r1 = 23;  rock_r2 = 25;
 
-// ---------- Lichtschranke (Referenzpunkt) ----------
-lsk_z   = tt_unten - 5; // Höhe des Lichtstrahls
-rock_r1 = 23; rock_r2 = 25;                    // Halbkreis-Blende am Drehteller
+// ---------- Servos (DS3218 und MG996R haben fast gleiche Maße) ----------
+sv_l = 40.7;  sv_b = 20.0;  sv_w = 10.2;       // Länge, Breite, Welle ab Vorderkante
+sv_unter = 27.6;   // Gehäuse unterhalb der Ohren
+sv_ohr_l = 54.5;
+sv_loch_a = 49.5;  sv_loch_b = 10;              // MESSEN
+horn_abst = 18;    // Ohr-Oberseite bis Fläche der Servoscheibe   MESSEN
+horn_d = 25;       // Servoscheibe (Alu-Horn) Durchmesser          MESSEN
 
-// ---------- Türme / Schulter ----------
-schulter_h = 65;        // Schulterachse über Drehteller
-turm_t     = 6;
-horn_abst  = 18;        // Ohr-Auflage bis Horn-Fläche MG996R   MESSEN
-ebene      = 16.5;      // Horn-Flächen bei +-16.5
-turm_i     = ebene + horn_abst - turm_t;       // Innenfläche Turm (28.5)
-turm_a     = turm_i + turm_t;                  // Außenfläche (34.5)
-turm_x1 = -42; turm_x2 = 22;
-mg_l = 40.7; mg_b = 19.7; mg_w = 10.2;         // MG996R: Länge, Breite, Welle ab Vorderkante
-mg_loch_a = 49.5; mg_loch_b = 10;              // Lochbild Ohren   MESSEN
-horn_d = 25;            // Vertiefung für runde Servoscheibe
+// ---------- Schulter ----------
+H_s  = 70;               // Schulterachse über Drehteller
+s_m  = 1.5;  s_z1 = 22;  s_z2 = 44;            // 1:2
+s_a  = s_m*(s_z1+s_z2)/2 + 0.15;
+s_zr_h = 8;
+yi = 19;                 // Innenfläche Innenwand (Kasten +-18)
+yw = 24.5;               // Außenfläche Innenwand = Beginn Zahnradraum
+yo = 33;                 // Gehäuse außen (danach Deckel)
+yc = 41;                 // Deckel außen
+hx1 = -96;  hx2 = 40;  hv1 = -H_s;  hv2 = 44;
+pinA = [-s_a, 0];
+pinB = [s_a*cos(-120), s_a*sin(-120)];
+alpha_max = 100;  alpha_min = -5;
 
 // ---------- Arm ----------
-L1 = 120;               // Schulter -> Ellbogen
-L2 = 80;                // Ellbogen -> Greiferflansch
-kurbel = 35;            // Kurbel / Hebel des Parallelogramms
-arm_t = 8; stange_t = 6;
+L1 = 120;                // Schulter -> Ellbogen
+L2 = 80;                 // Ellbogen -> Greiferflansch
+kurbel = 15;             // Kurbel / Hebel im Kasten
+k_h = 28;                // halbe Kastenhöhe
+k_y = 18;                // halbe Kastenbreite
+k_wand = 6;  k_rand = 5;
+stange_t = 6;
+ua_h = 22;               // halbe Höhe Unterarm
+ua_i = 19;  ua_a = 25;   // Unterarm Wände innen/außen
+
+// ---------- Achsen ----------
+sw = 10.2;               // Sechskant Schlüsselweite (passt durch 12er Lager)
+sw_loch = sw + 0.25;
 
 // ---------- Greifer ----------
-g_ab   = 10.1;          // Zahnradachsen bei y = +-g_ab
-g_m    = 1; g_z = 20;
-g_zr_h = 5;
-g_z0   = 10;            // Zahnrad-Unterseite über Greiferplatte   MESSEN
-g_platte = 4;
-finger_l = 62; finger_h = 20; finger_b = 20;
-finger_x = 16;          // Fingerfuß ab Zahnradachse
-wand = 1.2; rippe = 1.0; rippen_abst = 7;
+g_m = 1.5;  g_z = 24;  g_zr_h = 8;
+g_ab = (g_m*g_z + 0.3)/2;   // 18.15
+g_z0 = 11;               // Zahnrad-Unterseite über Platte   MESSEN
+g_rueck = -24;           // Rückseite (Flansch)
+g_unten = -36;
+finger_l = 60;  finger_h = 30;  finger_b = 22;
+finger_x = 22;  wand = 1.2;  rippe = 1.0;  rippen_abst = 7;
+finger_dy = g_ab - finger_b/2;   // Finger seitlich versetzt
 
 // =====================================================================
-//  Hilfsfunktionen
+//  Hilfen
 // =====================================================================
 function rot2(p, a) = [p[0]*cos(a)-p[1]*sin(a), p[0]*sin(a)+p[1]*cos(a)];
-function evolv(rb, t) = let(d = t*180/PI)
-    [rb*(cos(d)+t*sin(d)), rb*(sin(d)-t*cos(d))];
-
+function evolv(rb, t) = let(d = t*180/PI) [rb*(cos(d)+t*sin(d)), rb*(sin(d)-t*cos(d))];
+function summe(v, i) = i <= 0 ? 0 : v[i-1][0] + summe(v, i-1);
 module zahnrad2d(m, z, spiel=0.08) {
     rp = m*z/2; ra = rp + m; rf = rp - 1.25*m; rb = rp*cos(20);
     tmax = sqrt(pow(ra/rb,2) - 1);
@@ -99,55 +103,56 @@ module zahnrad2d(m, z, spiel=0.08) {
     halb = 90/z + inv20 - (spiel/rp)*180/PI/2;
     fl = [for (i=[0:12]) rot2(evolv(rb, tmax*i/12), -halb)];
     zahn = concat([[0,0]], fl, [for (i=[12:-1:0]) [fl[i][0], -fl[i][1]]]);
-    union() {
-        circle(r=rf, $fn=z*4);
-        for (k=[0:z-1]) rotate(k*360/z) polygon(zahn);
-    }
+    union() { circle(r=rf, $fn=z*4); for (k=[0:z-1]) rotate(k*360/z) polygon(zahn); }
 }
 module zahnrad(m, z, h) linear_extrude(h) zahnrad2d(m, z);
-
 module rohr(ri, ra, h) difference() { cylinder(r=ra, h=h, $fn=180); translate([0,0,-1]) cylinder(r=ri, h=h+2, $fn=180); }
-module tropfen(d, l) {          // liegende Bohrung entlang x, Spitze nach oben (druckbar ohne Stütze)
-    rotate([0,90,0]) linear_extrude(l, center=true)
-        hull() { circle(d=d); translate([-d/2*1.4142, 0]) circle(d=0.01); }
-}
+module tropfen(d, l) rotate([0,90,0]) linear_extrude(l, center=true) hull() { circle(d=d); translate([-d/2*1.4142,0]) circle(d=0.01); }
 module mutter(h=2.6) cylinder(d=6.4, h=h, $fn=6);
+module sechskant2d(s) circle(d=s/cos(30), $fn=6);
 module stab2d(a, b, r1, r2) hull() { translate(a) circle(r=r1); translate(b) circle(r=r2); }
+// 2D-Profil in der Armebene (x, v) zwischen y1 und y2 extrudieren
+module XV(y1, y2) translate([0,y2,0]) rotate([90,0,0]) linear_extrude(y2-y1) children();
+// Zylinder entlang y von y1 bis y2
+module ZY(d, y1, y2, x=0, v=0) translate([x,y2,v]) rotate([90,0,0]) cylinder(d=d, h=y2-y1);
+// Teil, das in XY gezeichnet ist (Dicke in z), in die Armebene legen: z -> +y
+module P(y) translate([0,y,0]) multmatrix([[1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]]) children();
+// ... und z -> -y
+module Q(y) translate([0,y,0]) multmatrix([[1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1]]) children();
 
 // =====================================================================
-//  BASIS
+//  BASIS  (Ø 220, Sandkammer, Schrittmotor, Lichtschranke)
 // =====================================================================
-sm_wx = zr_a;                     // Welle Schrittmotor auf +x
-sm_gx = zr_a - sm_versatz;        // Gehäusemitte (nach innen)
+sm_wx = zr_a;  sm_gx = zr_a - sm_versatz;
 
 module basis() {
     difference() {
         union() {
-            cylinder(r=basis_r, h=boden_t, $fn=180);
+            cylinder(r=basis_r, h=boden_t, $fn=200);
             rohr(basis_r-aussen_t, basis_r, basis_h);
             rohr(innen_r1, innen_r2, basis_h);
             cylinder(r=saeule_r, h=tt_oben+0.2);
-            // Kabelkanal durch die Sandkammer (hinten links, 270°)
             rotate(270) translate([innen_r1, -9, 0]) cube([basis_r-innen_r1-0.5, 18, 17]);
-            // Säulen für den Schrittmotor + Stege zur Innenwand
             for (s=[-1,1]) {
                 translate([sm_gx-4, s*sm_ohr-3, 0]) cube([8, 6, sm_ohr_z]);
                 translate([sm_gx, s*sm_ohr-1.5, 0]) cube([innen_r1-sm_gx+1, 3, basis_h]);
             }
             translate([sm_gx-4, -sm_ohr, 0]) cube([8, 2*sm_ohr, 8]);
-            // Lichtschranke: LED-Block an der Säule, Fotowiderstand-Säule (bei 180°)
             translate([-(rock_r1-2), -5, 0]) cube([rock_r1-2-saeule_r+2, 10, lsk_z+5]);
             translate([-(rock_r2+10), -5, 0]) cube([8, 10, lsk_z+5]);
             translate([-innen_r1-1, -1.5, 0]) cube([innen_r1+1-rock_r2-9, 3, basis_h]);
+            // Rippen in der Sandkammer
+            for (k=[0:7]) rotate(22.5+k*45) translate([innen_r2-1, -1.2, 0]) cube([basis_r-innen_r2, 2.4, 30]);
         }
         translate([0,0,-1]) cylinder(r=kabel_r, h=200);
-        rotate(270) translate([0, -6, boden_t]) cube([saeule_r+2, 12, 18]);          // Kabelausgang Säule
-        rotate(270) translate([innen_r1-6, -7, boden_t]) cube([40, 14, 12]);           // Kanal innen
-        for (k=[0:5]) rotate(30+k*60) translate([(innen_r1+innen_r2)/2, 0, basis_h-12]) cylinder(d=2.6, h=13); // Deckelring
-        for (k=[0:2]) rotate(k*120+60) translate([11.5, 0, tt_oben-10]) cylinder(d=2.6, h=11);               // Kappe
-        for (s=[-1,1]) translate([sm_gx, s*sm_ohr, sm_ohr_z-9]) cylinder(d=2.6, h=10);                      // Motor
-        translate([-(rock_r2+12), 0, lsk_z]) rotate([0,90,0]) cylinder(d=5.2, h=12);                          // Fotowiderstand
-        translate([-(rock_r1), 0, lsk_z]) rotate([0,90,0]) cylinder(d=5.1, h=rock_r1-kabel_r+1);              // LED (von innen)
+        rotate(270) translate([0, -6, boden_t]) cube([saeule_r+2, 12, 18]);
+        rotate(270) translate([innen_r1-6, -7, boden_t]) cube([60, 14, 12]);
+        for (k=[0:5]) rotate(30+k*60) translate([(innen_r1+innen_r2)/2, 0, basis_h-12]) cylinder(d=2.6, h=13);
+        for (k=[0:2]) rotate(k*120+60) translate([11.5, 0, tt_oben-10]) cylinder(d=2.6, h=11);
+        for (s=[-1,1]) translate([sm_gx, s*sm_ohr, sm_ohr_z-9]) cylinder(d=2.6, h=10);
+        translate([-(rock_r2+12), 0, lsk_z]) rotate([0,90,0]) cylinder(d=5.2, h=12);
+        translate([-(rock_r1), 0, lsk_z]) rotate([0,90,0]) cylinder(d=5.1, h=rock_r1-kabel_r+1);
+        for (k=[0:3]) rotate(45+k*90) translate([basis_r-15, 0, -0.01]) cylinder(d=12, h=1);   // Gummifüße
     }
 }
 
@@ -162,11 +167,11 @@ module deckelring() {
         for (k=[0:5]) rotate(30+k*60) translate([(innen_r1+innen_r2)/2, 0, -1]) {
             cylinder(d=3.3, h=10); translate([0,0,deckel_t-1.8]) cylinder(d=6.2, h=3); }
         for (k=[0:rolle_anz-1]) rotate(45+k*360/rolle_anz)
-            translate([rolle_r, 0, deckel_t+achse_h]) rotate([0,0,0]) tropfen(lager_d+0.15, 30);
+            translate([rolle_r, 0, deckel_t+achse_h]) tropfen(lager_d+0.15, 30);
     }
 }
 
-module rollenachse() {          // flach drucken (Abflachung unten)
+module rollenachse() {
     l = lager_b + 0.6 + 8;
     difference() {
         rotate([0,90,0]) cylinder(d=lager_d-0.05, h=l, center=true);
@@ -174,241 +179,328 @@ module rollenachse() {          // flach drucken (Abflachung unten)
     }
 }
 
+gh_loecher = [[-72,-26],[-72,26],[25,-26],[25,26]];   // Schultergehäuse auf Drehteller
+
 module drehteller() {           // Unterseite nach OBEN drucken
     difference() {
         union() {
-            cylinder(r=tt_r, h=tt_t, $fn=180);
-            // Zahnkranz (Ring) und Halbkreis-Blende hängen nach unten
+            cylinder(r=tt_r, h=tt_t, $fn=200);
+            translate([0,0,tt_t-2]) rohr(tt_r-1, schuerze_r+2.4, 2);
+            translate([0,0,-(tt_unten-(deckel_oben-2))]) rohr(schuerze_r, schuerze_r+2.4, tt_unten-(deckel_oben-2)+tt_t);
             translate([0,0,-(tt_unten-kranz_unten)]) difference() {
                 zahnrad(zr_m, zr_z2, tt_unten-kranz_unten+0.01);
                 translate([0,0,-1]) cylinder(r=kranz_ri, h=20, $fn=120);
             }
             translate([0,0,-(tt_unten-(lsk_z-5))]) intersection() {
                 rohr(rock_r1, rock_r2, tt_unten-(lsk_z-5)+0.01);
-                translate([-50,-50,-1]) cube([100,50,40]);         // lokale Winkel 180..360
+                translate([-50,-50,-1]) cube([100,50,40]);
             }
         }
         translate([0,0,-20]) cylinder(r=saeule_r+0.4, h=40);
-        // Turmschrauben mit Mutterfallen unten
-        for (s=[-1,1]) for (x=[-32, 14]) translate([x, s*50, -1]) {
-            cylinder(d=3.3, h=20); cylinder(d=6.4, h=3.6, $fn=6); }
-        // Pfeil vorne (Referenz / Ausrichtung)
-        translate([tt_r-14, 0, tt_t-0.6]) linear_extrude(1) polygon([[0,-5],[10,0],[0,5]]);
+        for (p=gh_loecher) translate([p[0], p[1], -1]) { cylinder(d=3.3, h=20); cylinder(d=6.5, h=4.5); }
     }
 }
 
-module ritzel() {
-    difference() {
-        zahnrad(zr_m, zr_z1, ritzel_oben-(kranz_unten+0.5));
-        translate([0,0,-1]) intersection() { cylinder(d=5.25, h=20); cube([3.15, 10, 40], center=true); }
-    }
+module ritzel() difference() {
+    zahnrad(zr_m, zr_z1, ritzel_oben-(kranz_unten+0.5));
+    translate([0,0,-1]) intersection() { cylinder(d=5.25, h=20); cube([3.15, 10, 40], center=true); }
 }
 
-module kappe() {
-    difference() {
-        cylinder(d=40, h=4);
-        translate([0,0,-1]) cylinder(r=kabel_r, h=6);
-        for (k=[0:2]) rotate(k*120+60) translate([11.5,0,-1]) { cylinder(d=3.3,h=6); translate([0,0,3]) cylinder(d1=3.3, d2=6.5, h=2.01); }
-    }
+module kappe() difference() {
+    cylinder(d=40, h=4);
+    translate([0,0,-1]) cylinder(r=kabel_r, h=6);
+    for (k=[0:2]) rotate(k*120+60) translate([11.5,0,-1]) { cylinder(d=3.3,h=6); translate([0,0,3]) cylinder(d1=3.3, d2=6.5, h=2.01); }
 }
 
 // =====================================================================
-//  TÜRME (Koordinaten wie im Zusammenbau, Drehteller-Oberseite = z 0)
+//  SCHULTERGEHÄUSE  (x vorne, y seitlich, z = v; Schulterachse im Ursprung)
 // =====================================================================
-mg_x1 = -(mg_l - mg_w) - 0.5;  mg_x2 = mg_w + 0.5;
-mg_mitte = (-(mg_l - mg_w) + mg_w)/2;
+function sv_mitte(P) = P[0] + sv_w - sv_l/2;
 
-module turm_rechts() {
+module gehaeuse_umriss() offset(r=10) offset(delta=-10) translate([hx1, hv1]) square([hx2-hx1, hv2-hv1]);
+
+module schwenkbereich2d() union() {
+    circle(r=31);
+    for (a=[alpha_min:5:alpha_max-5]) hull() {
+        rotate(a)   translate([0,-k_h-2]) square([300, 2*k_h+4]);
+        rotate(a+5) translate([0,-k_h-2]) square([300, 2*k_h+4]);
+    }
+}
+
+// Servotasche: s = -1 (Welle zeigt nach -y, Servo A) / +1 (Servo B)
+module servotasche(P, s) {
+    ohr_y = s*(yw + 0.5 - horn_abst);
+    m = sv_mitte(P);
+    translate([P[0]+sv_w-sv_l-0.4, min(ohr_y, s*(yw+0.1)), P[1]-sv_b/2-0.4])
+        cube([sv_l+0.8, abs(s*(yw+0.1)-ohr_y), sv_b+0.8]);
+    translate([m-sv_ohr_l/2-0.5, min(ohr_y, ohr_y - s*(sv_unter+0.8)), P[1]-sv_b/2-0.4])
+        cube([sv_ohr_l+1, sv_unter+0.8, sv_b+0.8]);
+    for (dx=[-1,1]) for (dv=[-1,1])
+        translate([m+dx*sv_loch_a/2, ohr_y, P[1]+dv*sv_loch_b/2]) rotate([s*90,0,0]) translate([0,0,-12]) cylinder(d=2.6, h=12);
+}
+
+deckel_schrauben = [[-88,34],[-88,-62],[32,-62],[34,-20],[-40,36],[5,38]];
+verbinder = [[-88,25],[-88,-55],[30,-55],[15,-62]];
+
+module schulter_gehaeuse_voll() {
     difference() {
-        union() {
-            translate([turm_x1, turm_i, 0]) cube([turm_x2-turm_x1, turm_t, schulter_h]);
-            translate([turm_x1, turm_i, schulter_h]) rotate([-90,0,0])
-                hull() { translate([20,0,0]) cylinder(r=20, h=turm_t); translate([turm_x2-turm_x1-20,0,0]) cylinder(r=20, h=turm_t); }
-            translate([turm_x1, turm_i, 0]) cube([turm_x2-turm_x1, 56-turm_i, turm_t]);       // Fuß
-            for (x=[turm_x1, turm_x2-5]) translate([x, turm_a, 0])
-                hull() { cube([5, 0.1, 40]); cube([5, 56-turm_a, turm_t]); }                 // Rippen
+        XV(-yo, yo) gehaeuse_umriss();
+        XV(-yi, yi) schwenkbereich2d();
+        XV(-yo-1, -yw) hull() { circle(r=36); translate(pinA) circle(r=19.5); }
+        XV(yw, yo+1)  hull() { circle(r=36); translate(pinB) circle(r=19.5); }
+        ZY(sitz_D, -yw-0.01, -yw+lager_b);
+        ZY(sitz_D, yw-lager_b, yw+0.01);
+        ZY(lippe_D, -yw, yw);
+        servotasche(pinA, -1);
+        servotasche(pinB, +1);
+        for (p=deckel_schrauben) { ZY(2.6, yo-12, yo+1, p[0], p[1]); ZY(2.6, -yo-1, -yo+12, p[0], p[1]); }
+        // Verbindungsschrauben der Hälften (M3x45)
+        for (p=verbinder) {
+            ZY(3.3, -yo-1, yo+1, p[0], p[1]);
+            ZY(6.5, yo-12, yo+1, p[0], p[1]);
+            translate([p[0], -yo+12, p[1]]) rotate([90,0,0]) rotate(30) cylinder(d=6.6, h=13, $fn=6);
         }
-        translate([mg_x1, turm_i-1, schulter_h-mg_b/2-0.4]) cube([mg_x2-mg_x1, turm_t+2, mg_b+0.8]);
-        for (dx=[-1,1]) for (dz=[-1,1])
-            translate([mg_mitte+dx*mg_loch_a/2, turm_i-1, schulter_h+dz*mg_loch_b/2]) rotate([-90,0,0]) cylinder(d=2.6, h=turm_t+2);
-        for (x=[-32,14]) translate([x, 50, -1]) { cylinder(d=3.3, h=20); translate([0,0,turm_t-2]) cylinder(d=6.5, h=10); }
+        for (p=gh_loecher) translate([p[0], p[1], hv1-1]) cylinder(d=2.6, h=19);
+        translate([0,0,hv1-1]) cylinder(r=22, h=7);
+        translate([0,0,hv1-1]) cylinder(r=9, h=12);
+        translate([-45, 12, -64]) cylinder(d=10, h=52);
+        hull() { translate([-45,12,hv1+4]) cylinder(d=10, h=6); translate([0,0,hv1+4]) cylinder(d=10, h=6); }
     }
 }
-module turm_links() mirror([0,1,0]) turm_rechts();
+module gehaeuse_links()  intersection() { schulter_gehaeuse_voll(); translate([-200,-100,-200]) cube([400,100,400]); }
+module gehaeuse_rechts() intersection() { schulter_gehaeuse_voll(); translate([-200,0,-200]) cube([400,100,400]); }
 
-// =====================================================================
-//  ARM  (2D-Profile in der Armebene, x = Armrichtung)
-// =====================================================================
-module horn_seite() {            // Servoscheibe: Vertiefung + Mittelloch
+module gehaeuse_deckel() difference() {       // rechter Deckel (links: gleiches Teil umgedreht)
+    XV(yo, yc) gehaeuse_umriss();
+    ZY(sitz_D, yo-0.01, yo+lager_b);
+    ZY(lippe_D, yo, yc+1);
+    for (p=deckel_schrauben) { ZY(3.3, yo-1, yc+1, p[0], p[1]); ZY(6.2, yc-3, yc+1, p[0], p[1]); }
+}
+
+module schulter_ritzel() difference() {        // auf die Alu-Servoscheibe geschraubt
+    zahnrad(s_m, s_z1, s_zr_h);
     translate([0,0,-1]) cylinder(d=9, h=20);
     translate([0,0,-0.01]) cylinder(d=horn_d+0.4, h=2);
 }
-
-module oberarm() {               // Horn-Seite liegt unten (z=0) -> zeigt zum linken Servo
-    difference() {
-        linear_extrude(arm_t) union() {
-            stab2d([0,0], [L1,0], 14, 10);
-            stab2d([0,0], [-35,0], 14, 8);
-        }
-        horn_seite();
-        translate([L1,0,-1]) cylinder(d=3.3, h=20);
-        translate([-30,0,-1]) cylinder(d=5, h=20);     // Gegengewicht / Feder
-    }
-}
-
-module kurbel_teil() {            // Horn-Seite unten -> zeigt zum rechten Servo
-    difference() {
-        linear_extrude(arm_t) stab2d([0,0], [kurbel,0], 14, 7);
-        horn_seite();
-        translate([kurbel,0,-1]) cylinder(d=3.3, h=20);
-    }
-}
-
-module koppelstange() {
-    difference() {
-        linear_extrude(stange_t) stab2d([0,0], [L1,0], 6.5, 6.5);
-        for (x=[0,L1]) translate([x,0,-1]) cylinder(d=3.3, h=20);
-    }
-}
-
-module unterarm() {              // Lagerseite unten (z=0) -> zeigt zum Oberarm
-    difference() {
-        union() {
-            linear_extrude(arm_t) union() {
-                stab2d([0,0], [L2-8,0], 15, 9);
-                stab2d([0,0], [-kurbel,0], 15, 7);
-                translate([L2-8, -14]) square([8, 28]);      // Flansch für den Greifer
-            }
-        }
-        translate([0,0,-0.01]) cylinder(d=lager_D-0.05, h=lager_b);  // Lagersitz (Presspassung)
-        translate([0,0,-1]) cylinder(d=16, h=20);
-        translate([-kurbel,0,-1]) cylinder(d=3.3, h=20);
-        for (v=[-7,7]) translate([L2-10, v, arm_t/2]) {
-            rotate([0,90,0]) cylinder(d=3.3, h=20);
-            translate([4.5, -3.2, 0]) cube([2.6, 6.4, 10]);        // Mutterschlitz von oben
-        }
-    }
-}
-
-module lagerhuelse() {
-    difference() {
-        union() { cylinder(d=lager_d-0.05, h=lager_b+1); cylinder(d=14, h=1); }
-        translate([0,0,-1]) cylinder(d=3.4, h=20);
-    }
+module schulter_zahnrad() difference() {
+    union() { zahnrad(s_m, s_z2, s_zr_h); translate([0,0,-0.5]) cylinder(d=14, h=s_zr_h+0.5); }
+    translate([0,0,-2]) linear_extrude(20) sechskant2d(sw_loch);
+    for (k=[0:5]) rotate(k*60+30) translate([21,0,-2]) cylinder(r=5.5, h=20);
 }
 
 // =====================================================================
-//  GREIFER
+//  ACHSEN  (Sechskant 10.2 für Drehmoment, rund 12 für die Lager)
 // =====================================================================
-sg_x1 = -16.6-0.3; sg_x2 = 5.9+0.3; sg_b = 12.4;   // SG90 Ausschnitt, Welle bei x=0
-
-module greifer_gehaeuse() {
+module achse(a) {
+    l = summe(a, len(a));
     difference() {
-        union() {
-            translate([-28, -20, -g_platte]) cube([42, 40, g_platte]);
-            translate([-28, -20, -g_platte]) cube([4, 40, 28]);                     // Flansch
-            for (y=[-19,15]) translate([-24, y, 0]) rotate([90,0,0]) translate([0,0,-4])
-                linear_extrude(4) polygon([[0,0],[10,0],[0,20]]);                  // Rippen
-            translate([0, g_ab, 0]) cylinder(d=9, h=g_z0-0.2);                    // Lagerzapfen Mitläufer
-        }
-        translate([sg_x1, -g_ab-sg_b/2, -10]) cube([sg_x2-sg_x1, sg_b, 20]);
-        for (x=[(sg_x1+sg_x2)/2-13.8, (sg_x1+sg_x2)/2+13.8]) translate([x, -g_ab, -10]) cylinder(d=1.8, h=20);
-        translate([0, g_ab, -10]) cylinder(d=3.3, h=40);
-        translate([0, g_ab, -g_platte-0.01]) mutter(2.6);
-        for (z=[4,18]) translate([-30, 0, z]) rotate([0,90,0]) cylinder(d=3.3, h=10);
+        union() for (i=[0:len(a)-1]) translate([0,0,summe(a,i)])
+            if (a[i][1] == "s") linear_extrude(a[i][0]) sechskant2d(sw);
+            else intersection() { cylinder(d=lager_d-0.05, h=a[i][0]); translate([-10,-sw/2,0]) cube([20,20,a[i][0]]); }
+        translate([0,0,-1]) cylinder(d=3.4, h=l+2);
+        translate([0,0,-0.01]) cylinder(d1=6.6, d2=3.4, h=1.7);       // Senkkopf
     }
+}
+achse_schulter = [[6,"s"],[6.5,"r"],[8.5,"s"],[5,"r"]];         // Kasten | Ring+Lager | Zahnrad | Lager
+achse_kurbel   = [[13.9,"s"],[11.6,"r"],[8.5,"s"],[5,"r"]];     // Kurbel | Lager+Ring+Lager | Zahnrad | Lager
+achse_ellbogen = [[13.9,"s"],[6.1,"r"],[6,"s"]];               // Hebel | Lager+Ring | Unterarm
+achse_stummel  = [[6,"s"],[6,"r"]];                            // Kasten | Ring+Lager
+module achse_druck(a) translate([0,0,sw/2]) rotate([90,0,0]) achse(a);
+
+module distanzring(t) difference() { cylinder(d=14, h=t); translate([0,0,-1]) cylinder(d=12.3, h=t+2); }
+
+// =====================================================================
+//  OBERARM-KASTEN  (x Armrichtung, y seitlich, z = v)
+// =====================================================================
+module kasten2d() hull() { circle(r=k_h); translate([L1,0]) circle(r=k_h); }
+kasten_schrauben = [[20,k_h-2.5],[60,k_h-2.5],[100,k_h-2.5],[20,-k_h+2.5],[60,-k_h+2.5],[100,-k_h+2.5],[-k_h+2.5,0],[L1+k_h-2.5,0]];
+
+module oberarm_kasten() difference() {      // linke Wand + Rand; rechte Wand = Deckel
+    union() {
+        XV(-k_y, -k_y+k_wand) kasten2d();
+        XV(-k_y+k_wand, k_y-k_wand) difference() { kasten2d(); offset(delta=-k_rand) kasten2d(); }
+    }
+    for (x=[0, L1]) XV(-k_y-1, -k_y+k_wand+1) translate([x,0]) sechskant2d(sw_loch);
+    for (p=kasten_schrauben) ZY(2.6, k_y-k_wand-12, k_y-k_wand+1, p[0], p[1]);
+    for (x=[30, L1-30]) XV(-k_y-1, -k_y+k_wand+1) translate([x, -k_h+12]) circle(d=7);   // Kabel
+}
+module oberarm_deckel() difference() {
+    XV(k_y-k_wand, k_y) kasten2d();
+    for (x=[0, L1]) { ZY(sitz_D, k_y-lager_b, k_y+0.01, x); ZY(lippe_D, k_y-k_wand-1, k_y, x); }
+    for (p=kasten_schrauben) { ZY(3.3, k_y-k_wand-1, k_y+1, p[0], p[1]);
+        translate([p[0], k_y+0.01, p[1]]) rotate([90,0,0]) cylinder(d1=6.5, d2=3.3, h=1.8); }
+}
+
+module kurbel_teil() difference() {          // Kurbel (Schulter) und Hebel (Ellbogen): 2x
+    union() {
+        linear_extrude(8) stab2d([0,0], [kurbel,0], 10, 6.5);
+        cylinder(d=14, h=13.9);                  // Nabe bis zum Lager-Innenring
+    }
+    translate([0,0,-1]) linear_extrude(30) sechskant2d(sw_loch);
+    translate([kurbel,0,-1]) cylinder(d=3.3, h=20);
+}
+module koppelstange() difference() {
+    linear_extrude(stange_t) stab2d([0,0], [L1,0], 6.5, 6.5);
+    for (x=[0,L1]) { translate([x,0,-1]) cylinder(d=3.3, h=20); translate([x,0,-0.01]) cylinder(d1=6.6, d2=3.3, h=1.7); }
+}
+
+// =====================================================================
+//  UNTERARM  (Kanal; Wände außen am Kasten; x Armrichtung, z = v)
+// =====================================================================
+module ua2d() hull() { circle(r=26); translate([0,-ua_h]) square([L2, 2*ua_h]); }
+ua_schrauben = [[40,ua_h-2.5],[70,ua_h-2.5],[68,-ua_h+2.5],[L2-3,10],[L2-3,-10]];
+ua_flansch = [[12,-14],[-12,-14],[12,-2],[-12,-2]];   // [y, v]
+
+module unterarm_kanal() difference() {      // rechte Wand + oben + unten + Stirnwand
+    union() {
+        XV(ua_i, ua_a) ua2d();
+        XV(-ua_i, ua_i) {
+            translate([32, ua_h-5]) square([L2-32, 5]);
+            translate([60, -ua_h]) square([L2-60, 5]);
+            translate([L2-6, -ua_h]) square([6, 2*ua_h]);
+        }
+    }
+    XV(ua_i-1, ua_a+1) sechskant2d(sw_loch);
+    for (p=ua_schrauben) ZY(2.6, -ua_i-1, -ua_i+12, p[0], p[1]);
+    for (f=ua_flansch) translate([L2-10, f[0], f[1]]) {
+        rotate([0,90,0]) cylinder(d=3.3, h=20);
+        rotate([0,90,0]) rotate(30) cylinder(d=6.6, h=6.6, $fn=6);
+    }
+    translate([L2-10, 0, -8]) rotate([0,90,0]) cylinder(d=10, h=20);
+}
+module unterarm_deckel() difference() {
+    XV(-ua_a, -ua_i) ua2d();
+    ZY(sitz_D, -ua_i-lager_b-0.01, -ua_i+0.01);
+    ZY(lippe_D, -ua_a-1, -ua_i);
+    for (p=ua_schrauben) { ZY(3.3, -ua_a-1, -ua_i+1, p[0], p[1]);
+        translate([p[0], -ua_a-0.01, p[1]]) rotate([-90,0,0]) cylinder(d1=6.5, d2=3.3, h=1.8); }
+}
+
+// =====================================================================
+//  GREIFER  (x_g vorne, y_g seitlich, z_g hoch; Platte oben bei z=0)
+// =====================================================================
+g_boden_schr = [[g_rueck+6,-40.25],[g_rueck+6,40.25],[8,-40.25],[8,40.25]];
+module greifer_gehaeuse() difference() {
+    union() {
+        translate([g_rueck, -42, -5]) cube([30-g_rueck, 84, 5]);                         // Platte
+        translate([g_rueck, -42, g_unten]) cube([4, 84, 24-g_unten]);                    // Rückwand
+        for (s=[-1,1]) translate([g_rueck, s>0 ? 38.5 : -42, g_unten]) cube([8-g_rueck, 3.5, 24-g_unten]);
+        for (s=[-1,1]) translate([g_rueck, s>0 ? 38.5 : -42, g_unten]) cube([14.6-g_rueck, 3.5, -g_unten]);
+        translate([10.6, -42, g_unten]) cube([4, 84, -5-g_unten]);                      // Front unten
+        translate([0, g_ab, 0]) cylinder(d=10, h=g_z0-0.2);                             // Zapfen
+    }
+    translate([-sv_b/2-0.4, -g_ab-sv_w-0.4, -10]) cube([sv_b+0.8, sv_l+0.8, 20]);
+    for (dy=[-1,1]) for (dx=[-1,1]) translate([dx*sv_loch_b/2, -g_ab-sv_w+sv_l/2+dy*sv_loch_a/2, -10]) cylinder(d=2.6, h=10.5);
+    translate([0, g_ab, -10]) cylinder(d=3.3, h=40);
+    translate([0, g_ab, -5.01]) mutter(2.6);
+    for (p=g_haube_schr) translate([p[0], p[1], 10]) cylinder(d=2.6, h=20);
+    for (f=ua_flansch) translate([g_rueck-1, f[0], f[1]-8]) rotate([0,90,0]) cylinder(d=3.3, h=10);
+    translate([g_rueck-1, 0, -16]) rotate([0,90,0]) cylinder(d=10, h=10);
+    for (p=g_boden_schr) translate([p[0], p[1], g_unten-1]) cylinder(d=2.6, h=11);
+}
+g_haube_schr = [[-16,-40.25],[-16,40.25],[2,-40.25],[2,40.25]];
+module greifer_haube() difference() {      // Deckel über den Zahnrädern (liegt auf den Seitenwänden)
+    translate([g_rueck, -42, 0]) cube([8-g_rueck, 84, 3]);
+    translate([0, -g_ab, -1]) cylinder(d=10, h=5);          // Zugang Hornschraube
+    translate([0, g_ab, -1]) cylinder(d=3.3, h=5);          // Achsschraube Mitläufer
+    for (p=g_haube_schr) translate([p[0], p[1], -1]) { cylinder(d=3.3, h=5); translate([0,0,1.2]) cylinder(d1=3.3, d2=6.5, h=1.81); }
+}
+module greifer_boden() difference() {
+    translate([g_rueck, -42, 0]) cube([14.6-g_rueck, 84, 4]);
+    for (p=g_boden_schr) translate([p[0], p[1], -1]) { cylinder(d=3.3, h=10); translate([0,0,2.5]) cylinder(d=6.2, h=3); }
 }
 
 module greiferhebel(antrieb=true) {
+    pad_y1 = -finger_b/2 + finger_dy;  pad_y2 = finger_b/2 + finger_dy - 1;
     difference() {
         union() {
-            rotate(antrieb ? 0 : 9) zahnrad(g_m, g_z, g_zr_h);
-            hull() { cylinder(r=5.5, h=g_zr_h); translate([finger_x-3, -10, 0]) cube([3, 19, g_zr_h]); }
-            translate([finger_x-3, -10, 0]) cube([3, 19, finger_h+6]);             // Rückwand
-            translate([finger_x-3, -10, 0]) cube([3+8, 19, 3]);                    // Bodenplatte
+            rotate(antrieb ? 0 : 180/g_z) zahnrad(g_m, g_z, g_zr_h);
+            hull() { cylinder(r=8, h=g_zr_h); translate([finger_x-3, pad_y1, 0]) cube([3, pad_y2-pad_y1, g_zr_h]); }
+            translate([finger_x-3, pad_y1, 0]) cube([3, pad_y2-pad_y1, finger_h+6]);
+            translate([finger_x-3, pad_y1, 0]) cube([11, pad_y2-pad_y1, 3]);
         }
-        if (antrieb) {
-            translate([0,0,-1]) cylinder(d=5.5, h=20);
-            // Vertiefung für das einarmige SG90-Horn (von unten)
-            translate([0,0,-0.01]) linear_extrude(1.8) hull() { circle(d=7.6); translate([15.5,0]) circle(d=4.8); }
-        } else translate([0,0,-1]) cylinder(d=3.4, h=20);
-        for (y=[-5,4]) translate([finger_x+4, y, -1]) cylinder(d=3.3, h=40);
-        for (y=[-5,4]) translate([finger_x+4, y, -0.01]) mutter(2.4);
+        if (antrieb) { translate([0,0,-1]) cylinder(d=9, h=20); translate([0,0,-0.01]) cylinder(d=horn_d+0.4, h=2); }
+        else translate([0,0,-1]) cylinder(d=3.4, h=20);
+        for (y=[-5,5]) translate([finger_x+4, y+finger_dy, -1]) cylinder(d=3.3, h=60);
+        for (y=[-5,5]) translate([finger_x+4, y+finger_dy, -0.01]) mutter(2.4);
     }
 }
 module greiferhebel_mitlaeufer() mirror([0,1,0]) greiferhebel(false);
-
 module klemmplatte() difference() {
-    translate([0,-10,0]) cube([8, 19, 3]);
-    for (y=[-5,4]) translate([4, y, -1]) cylinder(d=3.3, h=5);
+    translate([0, -finger_b/2, 0]) cube([8, finger_b-1, 3]);
+    for (y=[-5,5]) translate([4, y, -1]) cylinder(d=3.3, h=5);
 }
 
-// ---------- Fin-Ray-Finger (TPU) ----------
 module finger2d() {
     basis = 8;
     tri = [[basis,-finger_b/2],[finger_l,finger_b/2-0.01],[basis,finger_b/2]];
     difference() {
         union() {
             translate([0,-finger_b/2]) square([basis, finger_b]);
-            difference() {
-                offset(r=0.6) offset(delta=-0.6) polygon(tri);
-                offset(delta=-wand) polygon(tri);
-            }
+            difference() { offset(r=0.6) offset(delta=-0.6) polygon(tri); offset(delta=-wand) polygon(tri); }
             intersection() {
                 polygon(tri);
                 for (x=[basis+rippen_abst : rippen_abst : finger_l-6]) translate([x-rippe/2, -finger_b]) square([rippe, 2*finger_b]);
             }
+            for (x=[basis+4 : 5 : finger_l-6]) translate([x, finger_b/2]) circle(d=1.6, $fn=12);   // Griffnoppen
         }
-        for (y=[-5,4]) translate([4,y]) circle(d=3.4);
+        for (y=[-5,5]) translate([4,y]) circle(d=3.4);
     }
 }
 module finger() linear_extrude(finger_h) finger2d();
 
 // =====================================================================
-//  ZUSAMMENBAU (Vorschau, Pose über Winkel)
+//  ZUSAMMENBAU
 // =====================================================================
-alpha = 60;   // Oberarm über der Waagerechten
-beta  = -35;  // Unterarm (absolut)
-greif = 20;   // Öffnungswinkel je Hebel
-basisw = 0;
+alpha = 55;  beta = -50;  greif = 18;  basisw = 0;
 
 module greifer_komplett() {
-    color("SteelBlue") greifer_gehaeuse();
+    color("SteelBlue") { greifer_gehaeuse(); translate([0,0,24]) greifer_haube(); translate([0,0,g_unten-4]) greifer_boden(); }
     color("Orange") translate([0,-g_ab,g_z0]) rotate(-greif) {
         greiferhebel(true);
-        color("Gold") translate([finger_x,0,3]) finger();
-        translate([finger_x,0,3+finger_h]) klemmplatte();
+        color("Gold") translate([finger_x, finger_dy, 3]) finger();
+        translate([finger_x, finger_dy, 3+finger_h]) klemmplatte();
     }
-    color("Orange") translate([0, g_ab,g_z0]) rotate(greif) {
+    color("Orange") translate([0, g_ab, g_z0]) rotate(greif) {
         greiferhebel_mitlaeufer();
-        color("Gold") translate([finger_x,0,3+finger_h]) mirror([0,0,1]) mirror([0,1,0]) finger();
+        color("Gold") translate([finger_x, -finger_dy, 3+finger_h]) mirror([0,0,1]) mirror([0,1,0]) finger();
     }
 }
 
-// Armebene: lokal x -> Welt x, lokal y -> Welt z, lokal z -> Welt +y (P) bzw. -y (Q)
-module P(y) translate([0,y,0]) multmatrix([[1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]]) children();
-module Q(y) translate([0,y,0]) multmatrix([[1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1]]) children();
+module schulter_innen() {          // Zahnräder (Vorschau)
+    color("Silver") {
+        rotate([0,-alpha,0]) Q(-yw-0.5) translate([0,0,0]) zahnrad(s_m, s_z2, s_zr_h);
+        rotate([0,-(beta+180),0]) P(yw+0.5) zahnrad(s_m, s_z2, s_zr_h);
+        translate([pinA[0],0,pinA[1]]) Q(-yw-0.5) zahnrad(s_m, s_z1, s_zr_h);
+        translate([pinB[0],0,pinB[1]]) P(yw+0.5) zahnrad(s_m, s_z1, s_zr_h);
+    }
+}
 
-module zusammenbau() {
+module zusammenbau(ohne_deckel=false) {
     E = [L1*cos(alpha), L1*sin(alpha)];
-    K = [kurbel*cos(beta+180), kurbel*sin(beta+180)];
+    theta = beta + 180;
+    K = [kurbel*cos(theta), kurbel*sin(theta)];
     color("LightGray") basis();
     color("DimGray") translate([0,0,basis_h]) deckelring();
     color("Silver") translate([sm_wx,0,kranz_unten+0.5]) ritzel();
     rotate(basisw) {
         color("WhiteSmoke") translate([0,0,tt_unten]) drehteller();
-        color("DimGray") translate([0,0,tt_oben+0.2]) kappe();
-        translate([0,0,tt_oben]) {
-            color("SlateGray") { turm_rechts(); turm_links(); }
-            translate([0,0,schulter_h]) {
-                color("Tomato") P(-ebene) rotate(alpha) oberarm();
-                color("Tomato") Q(ebene) rotate(beta+180) kurbel_teil();
-                color("Khaki")  P(-ebene+arm_t+1+arm_t+1) translate(K) rotate(alpha) koppelstange();
-                P(-ebene+arm_t+1) translate(E) rotate(beta) {
-                    color("Tomato") unterarm();
-                    // Greifer: x_g -> u, z_g -> v, y_g -> -Seite
-                    translate([L2+28, -11, arm_t/2])
-                        multmatrix([[1,0,0,0],[0,0,1,0],[0,-1,0,0],[0,0,0,1]]) greifer_komplett();
+        translate([0,0,tt_oben+H_s]) {
+            color("SlateGray") { gehaeuse_links(); gehaeuse_rechts(); }
+            if (!ohne_deckel) color("DarkSlateGray") { gehaeuse_deckel(); mirror([0,1,0]) gehaeuse_deckel(); }
+            schulter_innen();
+            rotate([0,-alpha,0]) {
+                color("Tomato") oberarm_kasten();
+                if (!ohne_deckel) color("IndianRed") oberarm_deckel();
+            }
+            color("Gold") rotate([0,-theta,0]) P(-1) kurbel_teil();
+            color("Khaki") translate([K[0], 0, K[1]]) rotate([0,-alpha,0]) P(-8) koppelstange();
+            translate([E[0], 0, E[1]]) {
+                color("Gold") rotate([0,-theta,0]) P(-1) kurbel_teil();
+                rotate([0,-beta,0]) {
+                    color("Tomato") unterarm_kanal();
+                    if (!ohne_deckel) color("IndianRed") unterarm_deckel();
+                    translate([L2-g_rueck, 0, 8]) greifer_komplett();
                 }
             }
         }
@@ -416,22 +508,35 @@ module zusammenbau() {
 }
 
 // =====================================================================
-if (teil == "zusammenbau")       zusammenbau();
-if (teil == "basis")             basis();
-if (teil == "deckelring")        deckelring();
-if (teil == "rollenachse")       translate([0,0,lager_d/2-1.5+1]) rollenachse();
-if (teil == "drehteller")        translate([0,0,tt_t]) rotate([180,0,0]) drehteller();
-if (teil == "ritzel")            ritzel();
-if (teil == "kappe")             kappe();
-if (teil == "turm_rechts")       rotate([0,-90,0]) translate([-turm_x1,0,0]) turm_rechts();
-if (teil == "turm_links")        rotate([0,-90,0]) translate([-turm_x1,0,0]) turm_links();
-if (teil == "oberarm")           oberarm();
-if (teil == "kurbel")            kurbel_teil();
-if (teil == "koppelstange")      koppelstange();
-if (teil == "unterarm")          unterarm();
-if (teil == "lagerhuelse")       lagerhuelse();
-if (teil == "greifer_gehaeuse")  translate([0,0,g_platte]) greifer_gehaeuse();
-if (teil == "hebel_antrieb")     greiferhebel(true);
-if (teil == "hebel_mitlaeufer")  greiferhebel_mitlaeufer();
-if (teil == "klemmplatte")       klemmplatte();
-if (teil == "finger_tpu")        finger();
+if (teil == "zusammenbau")         zusammenbau();
+if (teil == "offen")               zusammenbau(true);
+if (teil == "basis")               basis();
+if (teil == "deckelring")          deckelring();
+if (teil == "rollenachse")         translate([0,0,lager_d/2-0.5]) rollenachse();
+if (teil == "drehteller")          translate([0,0,tt_t]) rotate([180,0,0]) drehteller();
+if (teil == "ritzel_basis")        ritzel();
+if (teil == "kappe")               kappe();
+if (teil == "gehaeuse_links")      rotate([-90,0,0]) gehaeuse_links();
+if (teil == "gehaeuse_rechts")     rotate([90,0,0]) gehaeuse_rechts();
+if (teil == "gehaeuse_deckel")     translate([0,0,-yo]) rotate([90,0,0]) gehaeuse_deckel();
+if (teil == "schulter_ritzel")     schulter_ritzel();
+if (teil == "schulter_zahnrad")    translate([0,0,0.5]) schulter_zahnrad();
+if (teil == "achse_schulter")      achse_druck(achse_schulter);
+if (teil == "achse_kurbel")        achse_druck(achse_kurbel);
+if (teil == "achse_ellbogen")      achse_druck(achse_ellbogen);
+if (teil == "achse_stummel")       achse_druck(achse_stummel);
+if (teil == "distanzring_1")       distanzring(1.0);
+if (teil == "distanzring_1_5")     distanzring(1.5);
+if (teil == "oberarm_kasten")      translate([0,0,k_y]) rotate([90,0,0]) oberarm_kasten();
+if (teil == "oberarm_deckel")      translate([0,0,-k_y+k_wand]) rotate([90,0,0]) oberarm_deckel();
+if (teil == "kurbel")              kurbel_teil();
+if (teil == "koppelstange")        koppelstange();
+if (teil == "unterarm_kanal")      translate([0,0,ua_a]) rotate([-90,0,0]) unterarm_kanal();
+if (teil == "unterarm_deckel")     translate([0,0,-ua_i]) rotate([-90,0,0]) unterarm_deckel();
+if (teil == "greifer_gehaeuse")    translate([0,0,-g_unten]) greifer_gehaeuse();
+if (teil == "greifer_boden")       greifer_boden();
+if (teil == "greifer_haube")       greifer_haube();
+if (teil == "hebel_antrieb")       greiferhebel(true);
+if (teil == "hebel_mitlaeufer")    greiferhebel_mitlaeufer();
+if (teil == "klemmplatte")         klemmplatte();
+if (teil == "finger_tpu")          finger();
