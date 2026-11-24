@@ -1,6 +1,10 @@
 FeatureScript 1576;
 import(path : "onshape/std/geometry.fs", version : "1576.0");
 
+// ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+//  AB HIER KOPIEREN  (diese Zeile mit) – bis ganz zum Ende der Datei
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
 // =====================================================================================
 //  Roboterarm AM-R1  Version 2  –  vollständiges, detailliertes Modell als Onshape-Feature
 //
