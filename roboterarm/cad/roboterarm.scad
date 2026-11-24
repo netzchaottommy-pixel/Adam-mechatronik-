@@ -55,7 +55,7 @@ horn_d = 25;       // Servoscheibe (Alu-Horn) Durchmesser          MESSEN
 H_s  = 70;               // Schulterachse über Drehteller
 s_m  = 1.5;  s_z1 = 22;  s_z2 = 44;            // 1:2
 s_a  = s_m*(s_z1+s_z2)/2 + 0.15;
-s_zr_h = 8;
+s_zr_h = 7;               // Zahnbreite (Nabe 8.5)
 yi = 19;                 // Innenfläche Innenwand (Kasten +-18)
 yw = 24.5;               // Außenfläche Innenwand = Beginn Zahnradraum
 yo = 33;                 // Gehäuse außen (danach Deckel)
@@ -179,7 +179,8 @@ module rollenachse() {
     }
 }
 
-gh_loecher = [[-72,-26],[-72,26],[25,-26],[25,26]];   // Schultergehäuse auf Drehteller
+gh_loecher = [[-60,-47],[-60,47],[0,-47],[0,47]];     // Schultergehäuse: Flansch-Schrauben von oben
+gh_flansch_v = 6;  deckel_unten = -H_s + 8;
 
 module drehteller() {           // Unterseite nach OBEN drucken
     difference() {
@@ -197,7 +198,7 @@ module drehteller() {           // Unterseite nach OBEN drucken
             }
         }
         translate([0,0,-20]) cylinder(r=saeule_r+0.4, h=40);
-        for (p=gh_loecher) translate([p[0], p[1], -1]) { cylinder(d=3.3, h=20); cylinder(d=6.5, h=4.5); }
+        for (p=gh_loecher) translate([p[0], p[1], -12]) cylinder(d=2.6, h=30);    // M3x16 selbstschneidend
     }
 }
 
@@ -237,14 +238,19 @@ module servotasche(P, s) {
         cube([sv_ohr_l+1, sv_unter+0.8, sv_b+0.8]);
     for (dx=[-1,1]) for (dv=[-1,1])
         translate([m+dx*sv_loch_a/2, ohr_y, P[1]+dv*sv_loch_b/2]) rotate([s*90,0,0]) translate([0,0,-12]) cylinder(d=2.6, h=12);
+    // Freiraum für die runde Servoscheibe
+    if (s < 0) ZY(horn_d+3, -yw-1, -yw+6, P[0], P[1]); else ZY(horn_d+3, yw-6, yw+1, P[0], P[1]);
 }
 
-deckel_schrauben = [[-88,34],[-88,-62],[32,-62],[34,-20],[-40,36],[5,38]];
-verbinder = [[-88,25],[-88,-55],[30,-55],[15,-62]];
+deckel_schrauben = [[-88,34],[-80,-56],[16,-56],[34,-20],[-40,36],[5,40]];
+verbinder = [[-88,25],[-88,-55],[30,-55],[25,-62]];
 
 module schulter_gehaeuse_voll() {
     difference() {
-        XV(-yo, yo) gehaeuse_umriss();
+        union() {
+            XV(-yo, yo) gehaeuse_umriss();
+            translate([-80, -yc-12, hv1]) cube([100, 2*(yc+12), gh_flansch_v]);   // Flansch
+        }
         XV(-yi, yi) schwenkbereich2d();
         XV(-yo-1, -yw) hull() { circle(r=36); translate(pinA) circle(r=19.5); }
         XV(yw, yo+1)  hull() { circle(r=36); translate(pinB) circle(r=19.5); }
@@ -260,10 +266,11 @@ module schulter_gehaeuse_voll() {
             ZY(6.5, yo-12, yo+1, p[0], p[1]);
             translate([p[0], -yo+12, p[1]]) rotate([90,0,0]) rotate(30) cylinder(d=6.6, h=13, $fn=6);
         }
-        for (p=gh_loecher) translate([p[0], p[1], hv1-1]) cylinder(d=2.6, h=19);
+        for (p=gh_loecher) translate([p[0], p[1], hv1-1]) { cylinder(d=3.3, h=20); translate([0,0,gh_flansch_v+1-0.01]) cylinder(d=6.5, h=20); }
         translate([0,0,hv1-1]) cylinder(r=22, h=7);
         translate([0,0,hv1-1]) cylinder(r=9, h=12);
         translate([-45, 12, -64]) cylinder(d=10, h=52);
+        translate([-10, 0, -64]) cylinder(d=10, h=40);                 // Greiferkabel aus dem Oberarm
         hull() { translate([-45,12,hv1+4]) cylinder(d=10, h=6); translate([0,0,hv1+4]) cylinder(d=10, h=6); }
     }
 }
@@ -271,7 +278,7 @@ module gehaeuse_links()  intersection() { schulter_gehaeuse_voll(); translate([-
 module gehaeuse_rechts() intersection() { schulter_gehaeuse_voll(); translate([-200,0,-200]) cube([400,100,400]); }
 
 module gehaeuse_deckel() difference() {       // rechter Deckel (links: gleiches Teil umgedreht)
-    XV(yo, yc) gehaeuse_umriss();
+    XV(yo, yc) intersection() { gehaeuse_umriss(); translate([-500, deckel_unten]) square(1000); }
     ZY(sitz_D, yo-0.01, yo+lager_b);
     ZY(lippe_D, yo, yc+1);
     for (p=deckel_schrauben) { ZY(3.3, yo-1, yc+1, p[0], p[1]); ZY(6.2, yc-3, yc+1, p[0], p[1]); }
@@ -282,8 +289,8 @@ module schulter_ritzel() difference() {        // auf die Alu-Servoscheibe gesch
     translate([0,0,-1]) cylinder(d=9, h=20);
     translate([0,0,-0.01]) cylinder(d=horn_d+0.4, h=2);
 }
-module schulter_zahnrad() difference() {
-    union() { zahnrad(s_m, s_z2, s_zr_h); translate([0,0,-0.5]) cylinder(d=14, h=s_zr_h+0.5); }
+module schulter_zahnrad() difference() {   // Nabe z 0..8.5, Zähne z 0.5..7.5
+    union() { translate([0,0,0.5]) zahnrad(s_m, s_z2, s_zr_h); cylinder(d=14, h=8.5); }
     translate([0,0,-2]) linear_extrude(20) sechskant2d(sw_loch);
     for (k=[0:5]) rotate(k*60+30) translate([21,0,-2]) cylinder(r=5.5, h=20);
 }
@@ -298,7 +305,7 @@ module achse(a) {
             if (a[i][1] == "s") linear_extrude(a[i][0]) sechskant2d(sw);
             else intersection() { cylinder(d=lager_d-0.05, h=a[i][0]); translate([-10,-sw/2,0]) cube([20,20,a[i][0]]); }
         translate([0,0,-1]) cylinder(d=3.4, h=l+2);
-        translate([0,0,-0.01]) cylinder(d1=6.6, d2=3.4, h=1.7);       // Senkkopf
+        translate([0,0,-0.01]) rotate(30) cylinder(d=6.5, h=4, $fn=6);   // Tasche für M3-Mutter (innen)
     }
 }
 achse_schulter = [[6,"s"],[6.5,"r"],[8.5,"s"],[5,"r"]];         // Kasten | Ring+Lager | Zahnrad | Lager
@@ -322,7 +329,6 @@ module oberarm_kasten() difference() {      // linke Wand + Rand; rechte Wand = 
     }
     for (x=[0, L1]) XV(-k_y-1, -k_y+k_wand+1) translate([x,0]) sechskant2d(sw_loch);
     for (p=kasten_schrauben) ZY(2.6, k_y-k_wand-12, k_y-k_wand+1, p[0], p[1]);
-    for (x=[30, L1-30]) XV(-k_y-1, -k_y+k_wand+1) translate([x, -k_h+12]) circle(d=7);   // Kabel
 }
 module oberarm_deckel() difference() {
     XV(k_y-k_wand, k_y) kasten2d();
@@ -338,17 +344,18 @@ module kurbel_teil() difference() {          // Kurbel (Schulter) und Hebel (Ell
     }
     translate([0,0,-1]) linear_extrude(30) sechskant2d(sw_loch);
     translate([kurbel,0,-1]) cylinder(d=3.3, h=20);
+    translate([kurbel,0,8-4.2]) rotate(30) cylinder(d=6.5, h=5, $fn=6);   // Stoppmutter M3
 }
 module koppelstange() difference() {
     linear_extrude(stange_t) stab2d([0,0], [L1,0], 6.5, 6.5);
-    for (x=[0,L1]) { translate([x,0,-1]) cylinder(d=3.3, h=20); translate([x,0,-0.01]) cylinder(d1=6.6, d2=3.3, h=1.7); }
+    for (x=[0,L1]) translate([x,0,-1]) cylinder(d=3.4, h=20);
 }
 
 // =====================================================================
 //  UNTERARM  (Kanal; Wände außen am Kasten; x Armrichtung, z = v)
 // =====================================================================
 module ua2d() hull() { circle(r=26); translate([0,-ua_h]) square([L2, 2*ua_h]); }
-ua_schrauben = [[40,ua_h-2.5],[70,ua_h-2.5],[68,-ua_h+2.5],[L2-3,10],[L2-3,-10]];
+ua_schrauben = [[40,ua_h-2.5],[70,ua_h-2.5],[68,-ua_h+2.5],[L2-3,8],[L2-3,-8]];
 ua_flansch = [[12,-14],[-12,-14],[12,-2],[-12,-2]];   // [y, v]
 
 module unterarm_kanal() difference() {      // rechte Wand + oben + unten + Stirnwand
@@ -379,34 +386,34 @@ module unterarm_deckel() difference() {
 // =====================================================================
 //  GREIFER  (x_g vorne, y_g seitlich, z_g hoch; Platte oben bei z=0)
 // =====================================================================
-g_boden_schr = [[g_rueck+6,-40.25],[g_rueck+6,40.25],[8,-40.25],[8,40.25]];
+g_ga = 43.5;   // Greifer halbe Außenbreite
+g_boden_schr = [[g_rueck+6,-41],[g_rueck+6,41],[8,-41],[8,41]];
 module greifer_gehaeuse() difference() {
     union() {
-        translate([g_rueck, -42, -5]) cube([30-g_rueck, 84, 5]);                         // Platte
-        translate([g_rueck, -42, g_unten]) cube([4, 84, 24-g_unten]);                    // Rückwand
-        for (s=[-1,1]) translate([g_rueck, s>0 ? 38.5 : -42, g_unten]) cube([8-g_rueck, 3.5, 24-g_unten]);
-        for (s=[-1,1]) translate([g_rueck, s>0 ? 38.5 : -42, g_unten]) cube([14.6-g_rueck, 3.5, -g_unten]);
-        translate([10.6, -42, g_unten]) cube([4, 84, -5-g_unten]);                      // Front unten
+        translate([g_rueck, -g_ga, -5]) cube([30-g_rueck, 2*g_ga, 5]);                   // Platte
+        translate([g_rueck, -g_ga, g_unten]) cube([4, 2*g_ga, 24-g_unten]);              // Rückwand
+        for (s=[-1,1]) translate([g_rueck, s>0 ? 38.5 : -g_ga, g_unten]) cube([8-g_rueck, 5, 24-g_unten]);
+        for (s=[-1,1]) translate([g_rueck, s>0 ? 38.5 : -g_ga, g_unten]) cube([14.6-g_rueck, 5, -g_unten]);
+        translate([10.6, -g_ga, g_unten]) cube([4, 2*g_ga, -5-g_unten]);                // Front unten
         translate([0, g_ab, 0]) cylinder(d=10, h=g_z0-0.2);                             // Zapfen
     }
     translate([-sv_b/2-0.4, -g_ab-sv_w-0.4, -10]) cube([sv_b+0.8, sv_l+0.8, 20]);
     for (dy=[-1,1]) for (dx=[-1,1]) translate([dx*sv_loch_b/2, -g_ab-sv_w+sv_l/2+dy*sv_loch_a/2, -10]) cylinder(d=2.6, h=10.5);
-    translate([0, g_ab, -10]) cylinder(d=3.3, h=40);
-    translate([0, g_ab, -5.01]) mutter(2.6);
+    translate([0, g_ab, -2]) cylinder(d=2.6, h=40);          // M3x25 selbstschneidend
     for (p=g_haube_schr) translate([p[0], p[1], 10]) cylinder(d=2.6, h=20);
     for (f=ua_flansch) translate([g_rueck-1, f[0], f[1]-8]) rotate([0,90,0]) cylinder(d=3.3, h=10);
     translate([g_rueck-1, 0, -16]) rotate([0,90,0]) cylinder(d=10, h=10);
     for (p=g_boden_schr) translate([p[0], p[1], g_unten-1]) cylinder(d=2.6, h=11);
 }
-g_haube_schr = [[-16,-40.25],[-16,40.25],[2,-40.25],[2,40.25]];
+g_haube_schr = [[-16,-41],[-16,41],[2,-41],[2,41]];
 module greifer_haube() difference() {      // Deckel über den Zahnrädern (liegt auf den Seitenwänden)
-    translate([g_rueck, -42, 0]) cube([8-g_rueck, 84, 3]);
+    translate([g_rueck, -g_ga, 0]) cube([8-g_rueck, 2*g_ga, 3]);
     translate([0, -g_ab, -1]) cylinder(d=10, h=5);          // Zugang Hornschraube
     translate([0, g_ab, -1]) cylinder(d=3.3, h=5);          // Achsschraube Mitläufer
     for (p=g_haube_schr) translate([p[0], p[1], -1]) { cylinder(d=3.3, h=5); translate([0,0,1.2]) cylinder(d1=3.3, d2=6.5, h=1.81); }
 }
 module greifer_boden() difference() {
-    translate([g_rueck, -42, 0]) cube([14.6-g_rueck, 84, 4]);
+    translate([g_rueck, -g_ga, 0]) cube([14.6-g_rueck, 2*g_ga, 4]);
     for (p=g_boden_schr) translate([p[0], p[1], -1]) { cylinder(d=3.3, h=10); translate([0,0,2.5]) cylinder(d=6.2, h=3); }
 }
 
@@ -520,7 +527,7 @@ if (teil == "gehaeuse_links")      rotate([-90,0,0]) gehaeuse_links();
 if (teil == "gehaeuse_rechts")     rotate([90,0,0]) gehaeuse_rechts();
 if (teil == "gehaeuse_deckel")     translate([0,0,-yo]) rotate([90,0,0]) gehaeuse_deckel();
 if (teil == "schulter_ritzel")     schulter_ritzel();
-if (teil == "schulter_zahnrad")    translate([0,0,0.5]) schulter_zahnrad();
+if (teil == "schulter_zahnrad")    schulter_zahnrad();
 if (teil == "achse_schulter")      achse_druck(achse_schulter);
 if (teil == "achse_kurbel")        achse_druck(achse_kurbel);
 if (teil == "achse_ellbogen")      achse_druck(achse_ellbogen);

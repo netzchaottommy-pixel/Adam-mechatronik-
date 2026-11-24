@@ -108,6 +108,34 @@ Die Servokabel laufen durch die Kanäle im Schultergehäuse, die Mittelsäule un
 
 ![Schnitt](bilder/schnitt.png)
 
+Die Reihenfolge ist wichtig, manche Schrauben sind später nicht mehr erreichbar.
+
+### Schraubenliste
+| Wo | Schraube | Anzahl |
+|---|---|---|
+| Deckelring auf Basis | M3×10 | 6 |
+| Schrittmotor | M3×8 | 2 |
+| Kappe auf Mittelsäule | M3×10 Senkkopf | 3 |
+| Schultergehäuse auf Drehteller (von oben, selbstschneidend) | M3×16 | 4 |
+| Gehäusehälften verbinden | M3×45 + Mutter | 4 |
+| Gehäusedeckel | M3×12 | 12 |
+| DS3218 im Gehäuse (selbstschneidend) | M3×10 | 8 |
+| Ritzel auf Alu-Servoscheibe | M3×8 | 4–8 |
+| Achse Schulter (Mutter steckt im Achsende) | M3×25 Zylinderkopf + Scheibe | 1 |
+| Achse Kurbel | M3×40 Zylinderkopf + Scheibe | 1 |
+| Achse Ellbogen | M3×25 Zylinderkopf + Scheibe | 1 |
+| Achse Stummel | M3×12 Zylinderkopf + Scheibe | 1 |
+| Muttern für die Achsenden | M3 | 4 |
+| Koppelstange an Kurbel/Hebel | M3×16 **Flachkopf (ISO 7380)** + Stoppmutter | 2 |
+| Oberarm-Deckel | M3×12 Senkkopf | 8 |
+| Unterarm-Deckel | M3×12 Senkkopf | 5 |
+| Greifer an Unterarm | M3×12 + Mutter | 4 |
+| MG996R im Greifer (selbstschneidend) | M3×8 | 4 |
+| Mitläufer-Hebel (selbstschneidend in den Zapfen) | M3×25 | 1 |
+| Greifer-Haube | M3×10 Senkkopf | 4 |
+| Greifer-Boden | M3×10 | 4 |
+| Finger | M3×40 + Mutter | 4 |
+
 ### Lager einpressen (11 Stück)
 | Wo | Anzahl |
 |---|---|
@@ -117,49 +145,64 @@ Die Servokabel laufen durch die Kanäle im Schultergehäuse, die Mittelsäule un
 | Oberarm-Deckel (Schulter + Ellbogen, von außen) | 2 |
 | Unterarm-Deckel (von innen) | 1 |
 
-Lager mit einem Schraubstock oder einer großen Mutter gerade einpressen, nie mit dem Hammer.
+Lager mit einem Schraubstock gerade einpressen, nie mit dem Hammer.
 
-### Basis
+### A) Basis und Drehteller
 1. Sand in den äußeren Ring füllen und den `deckelring` mit 6× M3×10 aufschrauben.
 2. Laufrollen: Lager zwischen die Böcke halten und die `rollenachse` durchschieben.
 3. Schrittmotor mit 2× M3×8 auf die Säulen schrauben und das `ritzel_basis` aufdrücken.
-4. Lichtschranke einbauen: Die LED von innen durch das Mittelrohr stecken, den Fotowiderstand von außen in die Säule.
+4. Lichtschranke: Die LED von innen durch das Mittelrohr stecken, den Fotowiderstand von außen in die Säule. Kabel durch das Rohr und den Kabelkanal führen.
+5. Den `drehteller` auf die Säule setzen, vorher etwas Fett an die Säule. Die `kappe` mit 3× M3×10 aufschrauben. Der Teller muss sich leicht drehen und darf nicht wackeln.
 
-### Oberarm-Kasten
-1. `kurbel` (2×) mit `koppelstange` verbinden: M3×20 Senkkopf von der Stangenseite, Stoppmutter auf der Kurbelseite.
-2. `achse_schulter` und `achse_stummel` **von innen** durch die Sechskantlöcher der linken Kastenwand stecken. Der Senkkopf sitzt bündig innen.
-3. Kurbeln und Stange einlegen: eine Kurbel an der Schulter, eine am Ellbogen, die Stange liegt zur linken Wand.
-4. `oberarm_deckel` mit 8× M3×12 Senkkopf aufschrauben.
-5. `achse_kurbel` von außen durch das Schulterlager in die Kurbel stecken, `achse_ellbogen` durch das Ellbogenlager in den Hebel.
+### B) Oberarm-Kasten
+1. In jede Achse eine **M3-Mutter in die Sechskanttasche** am inneren Ende drücken. Ein Tropfen Sekundenkleber hält sie.
+2. `kurbel` (2×) und `koppelstange` verbinden:
+   - Die Stoppmutter in die Tasche der Kurbel drücken.
+   - M3×16 Flachkopf von der Stangenseite einschrauben.
+   - Nur so fest anziehen, dass sich die Stange noch leicht dreht.
+3. `achse_schulter` und `achse_stummel` **von innen** durch die Sechskantlöcher der linken Kastenwand stecken, die Mutterseite zeigt nach innen.
+4. Kurbeln und Stange einlegen, die Stange liegt zur linken Wand.
+5. `oberarm_deckel` mit 8× M3×12 Senkkopf aufschrauben.
+6. `achse_kurbel` von außen durch das Schulterlager in die Kurbel stecken, `achse_ellbogen` durch das Ellbogenlager in den Hebel. Dazu die Kurbel durch das Lager hindurch mit einem Schraubendreher ausrichten.
 
-### Schulter
-1. Beide DS3218 in die Taschen der Gehäusehälften setzen, mit 4 Schrauben pro Servo. Die Welle zeigt in den Zahnradraum.
-2. `schulter_ritzel` auf die Alu-Servoscheiben schrauben. Durch die Löcher der Scheibe vorbohren, dann mit M3 festschrauben.
-3. ESP32 anschließen und `k` senden. Die Servos fahren in die Mitte (135°).
-4. Den Kasten einlegen:
-   - links: `distanzring_1_5` auf die Achse, dann durch das Innenwandlager
-   - rechts genauso über die `achse_kurbel`
-5. Die Gehäusehälften mit 4× M3×45 und Muttern verbinden.
-6. **Arm ausrichten:** Oberarm **50° über der Waagerechten**, Unterarm **60° schräg nach unten** (absolut). Erst dann die `schulter_zahnrad` auf die Sechskante stecken, sodass sie in die Ritzel greifen.
-7. `gehaeuse_deckel` (2×) mit je 6× M3×12 aufschrauben. Auf die Achsenden Scheibe und Stoppmutter setzen.
-8. Das Gehäuse von unten mit 4× M3×25 durch den `drehteller` festschrauben. Den Drehteller auf die Säule setzen und die `kappe` aufschrauben.
+### C) Schultergehäuse
+1. Beide DS3218 von der Trennfläche her in ihre Taschen setzen. Jedes Servo mit 4× M3×10 festschrauben.
+2. ESP32 anschließen und `k` senden, die Servos fahren in die Mitte (135°).
+3. Die `schulter_ritzel` auf die Alu-Servoscheiben schrauben. Dazu durch die Löcher der Scheibe vorbohren. Dann auf die Servowellen stecken.
+4. Einen `distanzring_1_5` auf die `achse_schulter` stecken und die linke Hälfte aufschieben. Die Achse läuft durch das Innenwandlager.
+5. Ebenso einen Ring auf die `achse_kurbel` und die rechte Hälfte aufschieben.
+6. Beide Hälften mit 4× M3×45 und Muttern verbinden.
+7. **Arm ausrichten:** Oberarm **50° über der Waagerechten**, Unterarm **60° schräg nach unten**. Erst dann die `schulter_zahnrad` auf die Sechskante stecken, sodass sie in die Ritzel greifen.
+8. `gehaeuse_deckel` (2×) mit je 6× M3×12 aufschrauben.
+9. Auf beiden Seiten Scheibe + M3-Schraube von außen in die Achse schrauben: links M3×25, rechts M3×40.
+10. Das fertige Gehäuse auf den Drehteller stellen und mit **4× M3×16 von oben** durch die Flansche schrauben.
 
-### Unterarm und Greifer
+### D) Unterarm und Greifer
 1. `distanzring_1` auf beide Ellbogen-Achsen.
 2. Den `unterarm_kanal` mit dem Sechskantloch auf die `achse_ellbogen` stecken.
-3. `unterarm_deckel` über den Stummel setzen, das Lager sitzt im Deckel. Mit 5× M3×12 Senkkopf verschrauben, Scheibe und Stoppmutter auf beide Achsenden.
-4. Greifer:
+3. Greifer zusammenbauen:
    - MG996R von unten in das `greifer_gehaeuse` schrauben.
    - Die Servoscheibe in den `hebel_antrieb` schrauben und auf das Servo stecken.
+   - Mit `k` schließt der Greifer. In dieser Stellung beide Hebel nach vorne ausrichten.
    - Den `hebel_mitlaeufer` auf den Zapfen setzen.
    - Die `greifer_haube` mit 4× M3×10 Senkkopf aufschrauben.
-   - M3×35 von oben durch Haube, Hebel und Zapfen stecken, Mutter unten in die Sechskanttasche.
-   - Mit `k` schließt der Greifer. In dieser Stellung beide Hebel nach vorne ausrichten.
-   - Finger mit je 2× M3×40 durch Klemmplatte, Finger und Hebel schrauben. Der zweite Finger kommt umgedreht hinein, die Noppenseite zeigt immer nach innen.
-   - Den `greifer_boden` mit 4× M3×10 anschrauben.
-5. Den Greifer mit 4× M3×12 an die Stirnwand des Unterarms schrauben, die Muttern sitzen in den Sechskanttaschen.
+   - M3×25 von oben durch Haube und Hebel in den Zapfen schrauben.
+   - Finger mit je 2× M3×40 durch Klemmplatte, Finger und Hebel schrauben. Der zweite Finger kommt umgedreht hinein, die Noppenseite zeigt nach innen.
+4. **Den Greifer jetzt an den Unterarm schrauben, solange der Deckel noch offen ist:**
+   - Muttern in die Taschen der Stirnwand legen.
+   - 4× M3×12 von innen aus dem Greifer einschrauben.
+   - Danach den `greifer_boden` mit 4× M3×10 anschrauben.
+5. `unterarm_deckel` über den Stummel setzen, das Lager sitzt im Deckel. Mit 5× M3×12 Senkkopf verschrauben.
+6. Scheibe + Schraube in die Ellbogen-Achsen: rechts M3×25, links M3×12.
 
----
+### Kabel
+- **Gelenkservos und Schrittmotor:** durch die Kanäle im Schultergehäuse, die Mittelsäule und den Kabelkanal der Basis.
+- **Greiferkabel** (mit Stecker-Buchse-Kabeln verlängert): Weg vom Greifer bis zur Basis.
+  - durch die Stirnwand in den Unterarm und unten am Ellbogen heraus
+  - an der **Unterseite des Oberarm-Kastens** entlang, mit Klebesockeln und Kabelbindern
+  - in einer lockeren Schlaufe in die Schwenköffnung des Gehäuses
+  - durch das Loch hinter der Schulterachse nach unten
+  - **Nicht** durch den Kasten führen, dort läuft die Koppelstange.
 
 ## 5. Firmware
 
