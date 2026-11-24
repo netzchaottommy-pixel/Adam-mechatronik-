@@ -81,7 +81,7 @@ const F_STANGE = color(0.85, 0.80, 0.50);  const F_GREIFER = color(0.25, 0.48, 0
 const F_HEBEL = color(0.95, 0.60, 0.10);   const F_TPU = color(0.15, 0.15, 0.15);
 const F_WEISS = color(0.92, 0.92, 0.92);   const F_METALL = color(0.72, 0.73, 0.76);
 const F_STAHL = color(0.55, 0.57, 0.60);   const F_SCHWARZ = color(0.07, 0.07, 0.07);
-const F_MOTOR = color(0.20, 0.35, 0.85);   const F_GUMMI = color(0.12, 0.12, 0.12);
+const F_GUMMI = color(0.12, 0.12, 0.12);
 const F_ALU = color(0.80, 0.82, 0.86);     const F_BRAUN = color(0.45, 0.25, 0.10);
 const F_ROT = color(0.85, 0.10, 0.10);     const F_ORANGE = color(0.98, 0.55, 0.05);
 const F_GELB = color(0.95, 0.85, 0.10);    const F_ROSA = color(0.95, 0.55, 0.70);
@@ -117,7 +117,7 @@ export const roboterarmAMR1 = defineFeature(function(context is Context, id is I
         annotation { "Name" : "Basis drehen" }
         isAngle(definition.basisw, BASIS_GRENZEN);
 
-        annotation { "Name" : "Servo: Ohr-Oberseite bis Fläche Servoscheibe" }
+        annotation { "Name" : "Servo: Ohr-Oberseite bis Flaeche Servoscheibe" }
         isLength(definition.hornAbst, { (millimeter) : [10, 18, 30] } as LengthBoundSpec);
         annotation { "Name" : "Servoscheibe Durchmesser" }
         isLength(definition.hornD, { (millimeter) : [15, 25, 30] } as LengthBoundSpec);
@@ -127,22 +127,22 @@ export const roboterarmAMR1 = defineFeature(function(context is Context, id is I
         isLength(definition.svLochA, { (millimeter) : [40, 49.5, 60] } as LengthBoundSpec);
         annotation { "Name" : "Servo Lochabstand quer" }
         isLength(definition.svLochB, { (millimeter) : [5, 10, 16] } as LengthBoundSpec);
-        annotation { "Name" : "Servo Länge" }
+        annotation { "Name" : "Servo Laenge" }
         isLength(definition.svL, { (millimeter) : [35, 40.7, 45] } as LengthBoundSpec);
         annotation { "Name" : "Servo Breite" }
         isLength(definition.svB, { (millimeter) : [15, 20, 25] } as LengthBoundSpec);
         annotation { "Name" : "Servo Welle ab Vorderkante" }
         isLength(definition.svW, { (millimeter) : [5, 10.2, 15] } as LengthBoundSpec);
-        annotation { "Name" : "Servo Höhe unter den Ohren" }
+        annotation { "Name" : "Servo Hoehe unter den Ohren" }
         isLength(definition.svUnter, { (millimeter) : [20, 27.6, 35] } as LengthBoundSpec);
-        annotation { "Name" : "Greifer: Zahnrad über Platte" }
+        annotation { "Name" : "Greifer: Zahnrad ueber Platte" }
         isLength(definition.gZ0, { (millimeter) : [5, 11, 20] } as LengthBoundSpec);
         annotation { "Name" : "28BYJ-48: Ohr-Unterseite bis Wellenende" }
         isLength(definition.smWelle, { (millimeter) : [6, 10, 14] } as LengthBoundSpec);
 
         annotation { "Name" : "Basis + Drehteller", "Default" : true }
         definition.zeigeBasis is boolean;
-        annotation { "Name" : "Schultergehäuse", "Default" : true }
+        annotation { "Name" : "Schultergehaeuse", "Default" : true }
         definition.zeigeSchulter is boolean;
         annotation { "Name" : "Arm", "Default" : true }
         definition.zeigeArm is boolean;
