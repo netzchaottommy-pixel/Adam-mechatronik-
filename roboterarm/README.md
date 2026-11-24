@@ -120,7 +120,9 @@ Die Reihenfolge ist wichtig, manche Schrauben sind später nicht mehr erreichbar
 | Gehäusehälften verbinden | M3×45 + Mutter | 4 |
 | Gehäusedeckel | M3×12 | 12 |
 | DS3218 im Gehäuse (selbstschneidend) | M3×10 | 8 |
-| Ritzel auf Alu-Servoscheibe | M3×8 | 4–8 |
+| Ritzel auf Alu-Servoscheibe (von der Zahnseite) | M3×10 Senkkopf | 8 |
+| Mittelschraube Servoscheibe (in die Servowelle) | M3×6 Zylinderkopf | 3 |
+| Antriebshebel Greifer auf Servoscheibe | M3×10 Senkkopf | 4 |
 | Achse Schulter (Mutter steckt im Achsende) | M3×25 Zylinderkopf + Scheibe | 1 |
 | Achse Kurbel | M3×40 Zylinderkopf + Scheibe | 1 |
 | Achse Ellbogen | M3×25 Zylinderkopf + Scheibe | 1 |
@@ -130,10 +132,10 @@ Die Reihenfolge ist wichtig, manche Schrauben sind später nicht mehr erreichbar
 | Oberarm-Deckel | M3×12 Senkkopf | 8 |
 | Unterarm-Deckel | M3×12 Senkkopf | 5 |
 | Greifer an Unterarm | M3×12 + Mutter | 4 |
-| MG996R im Greifer (selbstschneidend) | M3×8 | 4 |
+| MG996R im Greifer (durch die Gummitüllen, selbstschneidend) | M3×10 | 4 |
 | Mitläufer-Hebel (selbstschneidend in den Zapfen) | M3×25 | 1 |
 | Greifer-Haube | M3×10 Senkkopf | 4 |
-| Greifer-Boden | M3×10 | 4 |
+| Greifer-Boden (Köpfe von unten in den Senkungen) | M3×10 | 4 |
 | Finger | M3×40 + Mutter | 4 |
 
 ### Lager einpressen (11 Stück)
@@ -168,7 +170,7 @@ Lager mit einem Schraubstock gerade einpressen, nie mit dem Hammer.
 ### C) Schultergehäuse
 1. Beide DS3218 von der Trennfläche her in ihre Taschen setzen. Jedes Servo mit 4× M3×10 festschrauben.
 2. ESP32 anschließen und `k` senden, die Servos fahren in die Mitte (135°).
-3. Die `schulter_ritzel` auf die Alu-Servoscheiben schrauben. Dazu durch die Löcher der Scheibe vorbohren. Dann auf die Servowellen stecken.
+3. Die Alu-Servoscheibe in die Nabe des `schulter_ritzel` legen und mit 4× M3×10 Senkkopf von der Zahnseite festschrauben. Dann auf die Servowelle stecken und mit der Mittelschraube M3×6 sichern. Den Lochkreis der Scheibe vorher messen (`horn_lk`, Standard 16 mm).
 4. Einen `distanzring_1_5` auf die `achse_schulter` stecken und die linke Hälfte aufschieben. Die Achse läuft durch das Innenwandlager.
 5. Ebenso einen Ring auf die `achse_kurbel` und die rechte Hälfte aufschieben.
 6. Beide Hälften mit 4× M3×45 und Muttern verbinden.
@@ -182,7 +184,7 @@ Lager mit einem Schraubstock gerade einpressen, nie mit dem Hammer.
 2. Den `unterarm_kanal` mit dem Sechskantloch auf die `achse_ellbogen` stecken.
 3. Greifer zusammenbauen:
    - MG996R von unten in das `greifer_gehaeuse` schrauben.
-   - Die Servoscheibe in den `hebel_antrieb` schrauben und auf das Servo stecken.
+   - Die Servoscheibe in die Vertiefung des `hebel_antrieb` legen, 4× M3×10 Senkkopf von oben einschrauben, dann auf das Servo stecken und mit M3×6 sichern.
    - Mit `k` schließt der Greifer. In dieser Stellung beide Hebel nach vorne ausrichten.
    - Den `hebel_mitlaeufer` auf den Zapfen setzen.
    - Die `greifer_haube` mit 4× M3×10 Senkkopf aufschrauben.
@@ -191,7 +193,7 @@ Lager mit einem Schraubstock gerade einpressen, nie mit dem Hammer.
 4. **Den Greifer jetzt an den Unterarm schrauben, solange der Deckel noch offen ist:**
    - Muttern in die Taschen der Stirnwand legen.
    - 4× M3×12 von innen aus dem Greifer einschrauben.
-   - Danach den `greifer_boden` mit 4× M3×10 anschrauben.
+   - Danach den `greifer_boden` mit 4× M3×10 von unten anschrauben, die Köpfe liegen in den Senkungen.
 5. `unterarm_deckel` über den Stummel setzen, das Lager sitzt im Deckel. Mit 5× M3×12 Senkkopf verschrauben.
 6. Scheibe + Schraube in die Ellbogen-Achsen: rechts M3×25, links M3×12.
 
@@ -245,6 +247,7 @@ Alles steht in `cad/roboterarm.scad`. Bitte nachmessen (Kommentar `MESSEN`):
 - `horn_abst`: Ohr-Oberseite bis Fläche der Servoscheibe (DS3218 und MG996R)
 - `sv_loch_a`, `sv_loch_b`: Lochabstand der Servo-Ohren
 - `horn_d`: Durchmesser der Servoscheibe
+- `horn_lk`: Lochkreis der 4 Gewindelöcher in der Servoscheibe
 - `g_z0`: Höhe der Greifer-Zahnräder
 - `sm_welle_l`: Welle des 28BYJ-48
 

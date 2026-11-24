@@ -1,10 +1,37 @@
 # Roboterarm AM-R1 in Onshape
 
-`Roboterarm_AM-R1.fs` ist ein **Feature Studio** (FeatureScript). Es baut das komplette Modell direkt in Onshape auf:
+`Roboterarm_AM-R1.fs` ist ein **Feature Studio** (FeatureScript). Es baut das komplette Modell direkt in Onshape auf.
+
+**Druckteile**
 - alle 30 Druckteile mit denselben Maßen wie die STL-Dateien
-- Evolventen-Zahnräder, Sechskante, Senkungen, Muttertaschen und Fin-Ray-Rippen
-- dazu die Kaufteile: 2× DS3218, MG996R, 28BYJ-48, 11 Lager 6801 und die Stangenstifte
-- an allen Gelenken fertige **Mate Connectors**
+- exakte Evolventen-Zahnräder (Splines), alle Zahnpaare stehen in Eingriff
+- Fin-Ray-Finger mit gerundeten Ecken, Rippen und Griffnoppen
+
+**Kaufteile**
+- **DS3218 und MG996R:** Gehäusestufen, Ohren mit Schlitz, Abtriebswelle mit 25 Zähnen, Kabel mit Dupont-Stecker. Der MG996R hat zusätzlich Gummitüllen und Messinghülsen.
+- **Alu-Servoscheiben** mit Lochkreis
+- **Lager 6801-2RS:** Außen- und Innenring mit Laufbahn, 10 Kugeln mit Käfig, 2 Dichtscheiben
+- **28BYJ-48** mit Flansch, Welle mit Abflachungen, Kabelkappe, 5 Litzen und JST-Stecker
+
+**Normteile, etwa 120 Stück**
+- Schrauben ISO 4762, ISO 10642 und ISO 7380, jeweils mit Innensechskant
+- Muttern ISO 4032 und ISO 10511 mit Nylonring, Scheiben ISO 7089
+- Gummifüße
+
+**Elektronik**
+- ESP32-S3-Board mit Modul, USB-C, Tastern und Stiftleisten
+- Steckbrett mit allen 830 Löchern
+- ULN2003-Platine
+- Netzteil mit Hohlstecker
+- Elko, Widerstände mit Farbringen, Taster
+- LED und Fotowiderstand der Lichtschranke
+
+**Außerdem**
+- die **Sandfüllung** der Basis
+- **Werkstoffe** für alle Teile. Onshape zeigt damit Masse und Schwerpunkt jeder Baugruppe.
+- **Mate Connectors** an allen Gelenken
+
+Nicht modelliert sind nur die Gewindegänge (Schrauben mit Nenndurchmesser) und die Steckkabel zwischen den Bauteilen.
 
 ## 1. Einfügen
 
@@ -28,7 +55,12 @@
 | Unterarm absolut (beta) | Winkel des Unterarms zur Waagerechten, −130° … 10° |
 | Greifer offen | Öffnungswinkel je Hebel, 0° … 35° |
 | Basis drehen | −200° … 200° |
-| Häkchen | Baugruppen und Kaufteile ein- oder ausblenden. Ausblenden macht das Feature schneller. |
+| **Servo- und Motormaße** | Hornabstand, Scheibendurchmesser, Lochkreis, Lochabstände, Servo-Länge/-Breite/-Wellenlage/-Höhe, Greifer-Zahnradhöhe, Wellenlänge 28BYJ-48. Trag hier deine **gemessenen Werte** ein. Alle Taschen, Bohrungen und Lagen passen sich an. |
+| Häkchen | Baugruppen, Kaufteile, Normteile und Elektronik ein- oder ausblenden. Außerdem „Zahnform exakt“ und „Werkstoffe zuweisen“. Ausblenden macht das Feature deutlich schneller. |
+
+> Das Feature erzeugt einige hundert Körper. Der erste Aufbau kann eine Weile dauern. Zum Arbeiten Normteile und Elektronik ausblenden und erst zum Schluss wieder einschalten.
+
+> Wenn du eigene Maße einträgst, ändere sie bitte auch in `cad/roboterarm.scad` und exportiere die STL-Dateien neu. Sonst passen Druckteile und Onshape-Modell nicht mehr zusammen.
 
 Die Grundstellung (alpha 50°, beta −60°) ist die **Kalibrierstellung** aus der Bauanleitung.
 
@@ -39,11 +71,11 @@ Die Grundstellung (alpha 50°, beta −60°) ist die **Kalibrierstellung** aus d
 3. Rechtsklick auf **Basis**, dann **Fix**.
 
 ### Gruppen bilden (Teile, die sich zusammen bewegen)
-Jeder Teilname beginnt mit seiner Gruppe. Pro Gruppe alle Teile mit diesem Anfang markieren und **Group** wählen (Mate-Menü, Symbol mit zwei Würfeln):
+Jeder Teilname beginnt mit seiner Gruppe. Das gilt auch für Schrauben, Muttern, Scheiben und Lagerteile, zum Beispiel `Oberarm - ISO 10642 M3x12`. Pro Gruppe alle Teile mit diesem Anfang markieren und **Group** wählen (Mate-Menü, Symbol mit zwei Würfeln):
 
 | Gruppe | Teile mit Namensanfang |
 |---|---|
-| Basis | `Basis - …` und `Basis` (dann fixieren) |
+| Basis | `Basis - …` und `Basis`, auch Elektronik `Elektronik - …` (dann fixieren) |
 | Schulter | `Schulter - …` (Drehteller, Gehäuse, Deckel, Lager, beide DS3218) |
 | Oberarm | `Oberarm - …` |
 | Kurbel | `Kurbel` und `Kurbel - …` |
@@ -95,7 +127,18 @@ Bei den Revolute Mates **Limits** einschalten. Die Werte gelten ab der Grundstel
 | J4 Ellbogen | Knick zwischen Ober- und Unterarm 30° … 120°, also relativ −80° … +10° |
 | J7 Greifer | 0° | 35° |
 
-## 4. Animieren
+## 4. Masse und Schwerpunkt
+
+Mit „Werkstoffe zuweisen“ hat jedes Teil eine Dichte.
+- Druckteile haben die Dichte von PLA, PETG oder TPU. Das entspricht 100 % Füllung, also einer oberen Grenze.
+- Servos, Motor und Netzteil haben ihre echte Masse: DS3218 60 g, MG996R 55 g, 28BYJ-48 30 g, Netzteil 250 g.
+- Die Sandfüllung hat etwa 1,7 kg.
+
+So nutzt du es:
+- Im Part Studio oder Assembly Teile markieren und unten rechts **Mass properties** öffnen. Onshape zeigt Masse, Schwerpunkt und Trägheit.
+- Damit kannst du das Drehmoment an Schulter und Ellbogen mit 500 g Last nachrechnen.
+
+## 5. Animieren
 
 - **Ein Gelenk:** Rechtsklick auf ein Revolute Mate (zum Beispiel J2), dann **Animate**. Start- und Endwinkel sowie Schritte eingeben, dann abspielen. Die Ritzel drehen über die Gear Relations mit.
 - **Mehrere Stellungen nacheinander:** Gelenke in eine Stellung ziehen und als **Named position** speichern. Weitere Stellungen anlegen, zum Beispiel „Greifen“, „Anheben“ und „Drehen“. Die Named Positions kannst du nacheinander abrufen.

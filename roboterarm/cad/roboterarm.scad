@@ -50,6 +50,7 @@ sv_ohr_l = 54.5;
 sv_loch_a = 49.5;  sv_loch_b = 10;              // MESSEN
 horn_abst = 18;    // Ohr-Oberseite bis Fläche der Servoscheibe   MESSEN
 horn_d = 25;       // Servoscheibe (Alu-Horn) Durchmesser          MESSEN
+horn_lk = 16;      // Lochkreis der Servoscheibe (4 Gewindelöcher M3) MESSEN
 
 // ---------- Schulter ----------
 H_s  = 70;               // Schulterachse über Drehteller
@@ -239,7 +240,7 @@ module servotasche(P, s) {
     for (dx=[-1,1]) for (dv=[-1,1])
         translate([m+dx*sv_loch_a/2, ohr_y, P[1]+dv*sv_loch_b/2]) rotate([s*90,0,0]) translate([0,0,-12]) cylinder(d=2.6, h=12);
     // Freiraum für die runde Servoscheibe
-    if (s < 0) ZY(horn_d+3, -yw-1, -yw+6, P[0], P[1]); else ZY(horn_d+3, yw-6, yw+1, P[0], P[1]);
+    if (s < 0) ZY(horn_d+5, -yw-1, -yw+6, P[0], P[1]); else ZY(horn_d+5, yw-6, yw+1, P[0], P[1]);
 }
 
 deckel_schrauben = [[-88,34],[-80,-56],[16,-56],[34,-20],[-40,36],[5,40]];
@@ -284,10 +285,12 @@ module gehaeuse_deckel() difference() {       // rechter Deckel (links: gleiches
     for (p=deckel_schrauben) { ZY(3.3, yo-1, yc+1, p[0], p[1]); ZY(6.2, yc-3, yc+1, p[0], p[1]); }
 }
 
-module schulter_ritzel() difference() {        // auf die Alu-Servoscheibe geschraubt
-    zahnrad(s_m, s_z1, s_zr_h);
-    translate([0,0,-1]) cylinder(d=9, h=20);
-    translate([0,0,-0.01]) cylinder(d=horn_d+0.4, h=2);
+module schulter_ritzel() difference() {        // Nabe (z -3..0) nimmt die Alu-Servoscheibe auf
+    union() { zahnrad(s_m, s_z1, s_zr_h); translate([0,0,-3]) cylinder(d=horn_d+3, h=3.01); }
+    translate([0,0,-4]) cylinder(d=9, h=20);
+    translate([0,0,-3.01]) cylinder(d=horn_d+0.4, h=3.01);
+    for (k=[0:3]) rotate(45+k*90) translate([horn_lk/2,0,-4]) {           // 4x M3x10 Senkkopf in die Scheibe
+        cylinder(d=3.3, h=20); translate([0,0,4+s_zr_h-1.7]) cylinder(d1=3.3, d2=6.6, h=1.71); }
 }
 module schulter_zahnrad() difference() {   // Nabe z 0..8.5, Zähne z 0.5..7.5
     union() { translate([0,0,0.5]) zahnrad(s_m, s_z2, s_zr_h); cylinder(d=14, h=8.5); }
@@ -414,7 +417,7 @@ module greifer_haube() difference() {      // Deckel über den Zahnrädern (lieg
 }
 module greifer_boden() difference() {
     translate([g_rueck, -g_ga, 0]) cube([14.6-g_rueck, 2*g_ga, 4]);
-    for (p=g_boden_schr) translate([p[0], p[1], -1]) { cylinder(d=3.3, h=10); translate([0,0,2.5]) cylinder(d=6.2, h=3); }
+    for (p=g_boden_schr) translate([p[0], p[1], -1]) { cylinder(d=3.3, h=10); translate([0,0,0.99]) cylinder(d=6.2, h=3.01); }   // Kopf von unten
 }
 
 module greiferhebel(antrieb=true) {
@@ -426,7 +429,9 @@ module greiferhebel(antrieb=true) {
             translate([finger_x-3, pad_y1, 0]) cube([3, pad_y2-pad_y1, finger_h+6]);
             translate([finger_x-3, pad_y1, 0]) cube([11, pad_y2-pad_y1, 3]);
         }
-        if (antrieb) { translate([0,0,-1]) cylinder(d=9, h=20); translate([0,0,-0.01]) cylinder(d=horn_d+0.4, h=2); }
+        if (antrieb) { translate([0,0,-1]) cylinder(d=9, h=20); translate([0,0,-0.01]) cylinder(d=horn_d+0.4, h=2);
+            for (k=[0:3]) rotate(45+k*90) translate([horn_lk/2,0,-1]) {       // 4x M3x10 Senkkopf in die Scheibe
+                cylinder(d=3.3, h=20); translate([0,0,1+g_zr_h-1.7]) cylinder(d1=3.3, d2=6.6, h=1.71); } }
         else translate([0,0,-1]) cylinder(d=3.4, h=20);
         for (y=[-5,5]) translate([finger_x+4, y+finger_dy, -1]) cylinder(d=3.3, h=60);
         for (y=[-5,5]) translate([finger_x+4, y+finger_dy, -0.01]) mutter(2.4);
@@ -526,7 +531,7 @@ if (teil == "kappe")               kappe();
 if (teil == "gehaeuse_links")      rotate([-90,0,0]) gehaeuse_links();
 if (teil == "gehaeuse_rechts")     rotate([90,0,0]) gehaeuse_rechts();
 if (teil == "gehaeuse_deckel")     translate([0,0,-yo]) rotate([90,0,0]) gehaeuse_deckel();
-if (teil == "schulter_ritzel")     schulter_ritzel();
+if (teil == "schulter_ritzel")     translate([0,0,s_zr_h]) rotate([180,0,0]) schulter_ritzel();
 if (teil == "schulter_zahnrad")    schulter_zahnrad();
 if (teil == "achse_schulter")      achse_druck(achse_schulter);
 if (teil == "achse_kurbel")        achse_druck(achse_kurbel);
