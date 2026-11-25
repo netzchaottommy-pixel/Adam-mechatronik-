@@ -275,7 +275,7 @@ module schneckenrad() difference() {
 }
 
 // Schnecke (eingängig, rechtssteigend) mit Welle und Stirnrad 50 Z (Achse z)
-schnecke_aufl = 1;      // Auflösung der Schnecke (Vorschau: 0.25)
+schnecke_aufl = 0.5;    // Auflösung der Schnecke (0.5 reicht für den Druck, Vorschau 0.25)
 module schnecke2d() {
     p = s_lead; r1 = s_d1/2; ra = r1 + w_m; rf = r1 - 1.25*w_m;
     n = round(180*schnecke_aufl);
