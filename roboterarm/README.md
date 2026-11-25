@@ -6,6 +6,8 @@ gesteuert vom **Freenove ESP32-S3** (Kit FNK0082).
 
 ![Zusammenbau](bilder/zusammenbau.png)
 
+> **Nur mit dem Kit, ohne Zukauf?** Dann nimm die **[Kit-Version](kit/README.md)**: Schulter mit dem Gleichstrommotor aus dem Kit und Schneckengetriebe, Greifer mit SG90, keine Schrauben.
+
 | Eigenschaft | Wert |
 |---|---|
 | Nutzlast | **500 g bis 22 cm Reichweite**, darüber weniger |

@@ -1,0 +1,366 @@
+<title>Roboterarm Kit-Version</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap">
+<style>
+/* Werkbank-Ansicht: großes Modellfenster, rechts ein Bedienfeld wie ein Servo-Prüfgerät */
+:root {
+  --bg: #eef0f2;
+  --panel: #ffffff;
+  --fg: #1d2328;
+  --muted: #5d6870;
+  --line: #d6dbe0;
+  --accent: #d9503f;          /* Farbe des Oberarms */
+  --accent-fg: #ffffff;
+  --scene: #e3e7eb;
+  --track: #dfe4e8;
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181b; --panel: #1c2227; --fg: #e6eaed; --muted: #94a0a9; --line: #2e363d;
+    --accent: #ef6a57; --accent-fg: #14181b; --scene: #1a1f23; --track: #2c343a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181b; --panel: #1c2227; --fg: #e6eaed; --muted: #94a0a9; --line: #2e363d;
+  --accent: #ef6a57; --accent-fg: #14181b; --scene: #1a1f23; --track: #2c343a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 14px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px 24px;
+}
+.kopf { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; max-width: 1400px; margin: 0 auto 12px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: 1.6rem; letter-spacing: 0.01em; margin: 0; text-wrap: balance; }
+.kopf p { margin: 0; color: var(--muted); }
+.werkbank { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; max-width: 1400px; margin: 0 auto; }
+@media (max-width: 860px) { .werkbank { grid-template-columns: minmax(0, 1fr); } }
+.fenster { position: relative; background: var(--scene); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-height: 420px; aspect-ratio: 4 / 3; max-width: 100%; }
+@media (min-width: 861px) { .fenster { aspect-ratio: auto; height: min(78vh, 760px); } }
+#leinwand { display: block; width: 100%; height: 100%; touch-action: none; }
+.hinweis { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: var(--muted); pointer-events: none; }
+.laden[hidden] { display: none; }
+.laden { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-family: var(--f-mono); font-size: 13px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.panel h2 { font-family: var(--f-display); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 8px; }
+.regler { display: grid; gap: 12px; }
+.regler label { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; align-items: center; }
+.regler .wert { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: 13px; }
+.regler small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
+.anzeige { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.anzeige div { border: 1px solid var(--line); border-radius: 8px; padding: 8px; min-width: 0; }
+.anzeige span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.anzeige b { font-family: var(--f-mono); font-weight: 500; font-variant-numeric: tabular-nums; font-size: 15px; }
+.knoepfe { display: flex; flex-wrap: wrap; gap: 8px; }
+button { font: inherit; font-weight: 500; border-radius: 8px; padding: 8px 12px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+button.haupt { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.schalter { display: grid; gap: 6px; }
+.schalter label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.status { font-family: var(--f-mono); font-size: 12px; color: var(--muted); min-height: 1.4em; }
+.legende { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; font-size: 12px; color: var(--muted); }
+.legende i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<header class="kopf">
+  <h1>Roboterarm AM-R1 · Kit-Version</h1>
+  <p>Nur mit dem Freenove ESP32-S3 Kit, ohne Schrauben. Alle Teile in echter Größe aus den Druckdateien.</p>
+</header>
+
+<main class="werkbank">
+  <section class="fenster" aria-label="3D-Modell">
+    <canvas id="leinwand"></canvas>
+    <div class="laden" id="laden">Modell wird geladen …</div>
+    <div class="hinweis">Ziehen: drehen · Rechts ziehen: verschieben · Mausrad / zwei Finger: zoomen</div>
+  </section>
+
+  <aside class="panel">
+    <div>
+      <h2>Gelenke</h2>
+      <div class="regler">
+        <label for="r-basis">Basis drehen <span class="wert" id="w-basis">0°</span>
+          <input id="r-basis" type="range" min="-200" max="200" step="1" value="0">
+          <small>28BYJ-48, Zahnkranz 1:5, Bereich ±200°</small></label>
+        <label for="r-phi">Schulter φ <span class="wert" id="w-phi">0°</span>
+          <input id="r-phi" type="range" min="-33" max="45" step="0.5" value="0">
+          <small>Gleichstrommotor, Stirnrad 1:5 + Schnecke 1:80</small></label>
+        <label for="r-greif">Greifer offen <span class="wert" id="w-greif">15°</span>
+          <input id="r-greif" type="range" min="0" max="30" step="0.5" value="15">
+          <small>SG90, beide Finger über Zahnräder gekoppelt</small></label>
+      </div>
+    </div>
+
+    <div class="anzeige" aria-live="polite">
+      <div><span>Abstand</span><b id="a-r">–</b></div>
+      <div><span>Höhe</span><b id="a-h">–</b></div>
+      <div><span>Motor</span><b id="a-m">–</b></div>
+    </div>
+
+    <div>
+      <h2>Ablauf</h2>
+      <div class="knoepfe">
+        <button class="haupt" id="b-ablauf" type="button">Ablauf abspielen</button>
+        <button id="b-park" type="button">Parkstellung</button>
+      </div>
+      <p class="status" id="status">Bereit</p>
+    </div>
+
+    <div class="schalter">
+      <h2>Ansicht</h2>
+      <label><input type="checkbox" id="s-deckel"> Getriebedeckel ausblenden</label>
+      <label><input type="checkbox" id="s-kauf" checked> Kit-Teile zeigen (Motoren, Poti, Münzen)</label>
+    </div>
+
+    <div>
+      <h2>Baugruppen</h2>
+      <div class="legende" id="legende"></div>
+    </div>
+  </aside>
+</main>
+
+<script src="modell.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+// ---------- Maße (wie kit.scad; Modelldatei steht bei φ = 0) ----------
+const L = 120, S0 = 160, PZ = 190, G_TIEF = 80, G_VOR = 100;
+const REF = { phi: 0, g: 15, bw: 0 };
+const rad = d => d * Math.PI / 180;
+const HEB_A = [170, 10.1, 93], HEB_B = [170, -10.1, 93];
+const SCHNECKE = [0, 28, S0 - 37.15], MOTOR = [0, 28, S0 - 13], RITZEL_B = [56.4, 0, 0];
+
+const GRUPPEN = {
+  basis:  { name: "Basis", farbe: "#c3c8cd", teile: ["basis", "kappe", "rollen"] },
+  ring:   { name: "Deckelring", farbe: "#3f474e", teile: ["deckelring"] },
+  dreh:   { name: "Drehteller", farbe: "#e6e8ea", teile: ["drehteller"] },
+  bock:   { name: "Schulterbock", farbe: "#5a6670", teile: ["schulterbock", "getriebedeckel"] },
+  rad:    { name: "Zahnräder, Schnecke", farbe: "#b9bec6", teile: ["ritzel_basis", "schneckenrad", "schnecke", "motorritzel"] },
+  achse:  { name: "Achse", farbe: "#e2b13c", teile: ["achse"] },
+  haupt:  { name: "Hauptlenker", farbe: "#d9503f", teile: ["hauptlenker"] },
+  para:   { name: "Parallellenker", farbe: "#d6ca7e", teile: ["parallellenker"] },
+  hg:     { name: "Handgelenk", farbe: "#6a5acd", teile: ["handgelenk"] },
+  greif:  { name: "Greifergehäuse", farbe: "#3f7ab3", teile: ["greifer_gehaeuse"] },
+  hebel:  { name: "Greiferhebel", farbe: "#f09a1a", teile: ["hebel_a", "hebel_b"] },
+  tpu:    { name: "Fin-Ray-Finger (TPU)", farbe: "#262626", teile: ["finger_a", "finger_b"] },
+  kit:    { name: "Kit-Teile", farbe: "#3557d6", teile: ["schrittmotor", "servo_greifer", "poti"] },
+  metall: { name: "Motor, Münzen", farbe: "#c9a23a", teile: ["motor", "muenzen"] },
+};
+const BEWEGUNG = {
+  dreh: ["drehteller", "schulterbock", "getriebedeckel", "motor", "poti"],
+  arm: ["achse", "schneckenrad", "hauptlenker", "muenzen"],
+  schnecke: ["schnecke"], motorritzel: ["motorritzel"], ritzelBasis: ["ritzel_basis"],
+  para: ["parallellenker"],
+  hg: ["handgelenk", "greifer_gehaeuse", "servo_greifer"],
+  hebA: ["hebel_a", "finger_a"], hebB: ["hebel_b", "finger_b"],
+};
+const DECKEL = ["getriebedeckel"];
+const KAUF = ["schrittmotor", "servo_greifer", "poti", "motor", "muenzen"];
+
+const legende = document.getElementById("legende");
+for (const g of Object.values(GRUPPEN)) {
+  const d = document.createElement("div");
+  d.innerHTML = `<i style="background:${g.farbe}"></i>${g.name}`;
+  legende.appendChild(d);
+}
+
+// ---------- Szene ----------
+const leinwand = document.getElementById("leinwand");
+const renderer = new THREE.WebGLRenderer({ canvas: leinwand, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const szene = new THREE.Scene();
+const kamera = new THREE.PerspectiveCamera(35, 1, 0.05, 100);
+kamera.position.set(3.4, 2.6, 3.6);
+const steuerung = new OrbitControls(kamera, leinwand);
+steuerung.target.set(0.5, 1.0, 0);
+steuerung.enableDamping = true;
+steuerung.update();
+
+szene.add(new THREE.HemisphereLight(0xffffff, 0x6b7680, 1.6));
+const sonne = new THREE.DirectionalLight(0xffffff, 2.2); sonne.position.set(3, 6, 4); szene.add(sonne);
+const gegen = new THREE.DirectionalLight(0xffffff, 0.8); gegen.position.set(-4, 2, -3); szene.add(gegen);
+
+const wurzel = new THREE.Group();            // Modell in mm, z nach oben
+wurzel.rotation.x = -Math.PI / 2;
+wurzel.scale.setScalar(0.01);
+szene.add(wurzel);
+const raster = new THREE.GridHelper(6, 24);
+szene.add(raster);
+
+function themaFarben() {
+  const cs = getComputedStyle(document.documentElement);
+  szene.background = new THREE.Color(cs.getPropertyValue("--scene").trim() || "#e3e7eb");
+  raster.material.color = new THREE.Color(cs.getPropertyValue("--line").trim() || "#d6dbe0");
+  raster.material.opacity = 0.9; raster.material.transparent = true;
+}
+themaFarben();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", themaFarben);
+new MutationObserver(themaFarben).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+function groesse() {
+  const r = leinwand.parentElement.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  kamera.aspect = r.width / Math.max(1, r.height);
+  kamera.updateProjectionMatrix();
+}
+new ResizeObserver(groesse).observe(leinwand.parentElement);
+groesse();
+
+// ---------- Kinematik ----------
+const M = () => new THREE.Matrix4();
+const um = (p, achse, winkel) => M().makeTranslation(p[0], p[1], p[2])
+  .multiply(M().makeRotationAxis(new THREE.Vector3(...achse).normalize(), winkel))
+  .multiply(M().makeTranslation(-p[0], -p[1], -p[2]));
+const X = [1, 0, 0], Y = [0, 1, 0], Z = [0, 0, 1];
+const teil = {};
+const zustand = { ...REF };
+
+function stelle() {
+  const { phi, g, bw } = zustand;
+  const dp = rad(phi - REF.phi), dg = rad(g - REF.g);
+  const T = M().makeRotationZ(rad(bw));
+  const A = [L * Math.cos(rad(phi)), 0, S0 + L * Math.sin(rad(phi))];
+  const hg = T.clone().multiply(M().makeTranslation(A[0] - L, 0, A[2] - S0));
+  const lagen = {
+    dreh: T,
+    arm: T.clone().multiply(um([0, 0, S0], Y, -dp)),
+    para: T.clone().multiply(um([0, 0, PZ], Y, -dp)),
+    schnecke: T.clone().multiply(um(SCHNECKE, X, 80 * dp)),
+    motorritzel: T.clone().multiply(um(MOTOR, X, -400 * dp)),
+    ritzelBasis: um(RITZEL_B, Z, -5 * rad(bw)),
+    hg,
+    hebA: hg.clone().multiply(um(HEB_A, Z, dg)),
+    hebB: hg.clone().multiply(um(HEB_B, Z, -dg)),
+  };
+  for (const [gruppe, namen] of Object.entries(BEWEGUNG))
+    for (const n of namen) if (teil[n]) teil[n].matrix.copy(lagen[gruppe]);
+  document.getElementById("a-r").textContent = `${Math.round(L * Math.cos(rad(phi)) + G_VOR)} mm`;
+  document.getElementById("a-h").textContent = `${Math.round(S0 - G_TIEF + L * Math.sin(rad(phi)))} mm`;
+  document.getElementById("a-m").textContent = `${((phi + 33) * 400 / 360).toFixed(1)} U`;
+  for (const [k, id, f] of [["bw", "basis", 0], ["phi", "phi", 1], ["g", "greif", 1]]) {
+    document.getElementById("w-" + id).textContent = `${zustand[k].toFixed(f).replace("-", "−")}°`;
+    document.getElementById("r-" + id).value = zustand[k];
+  }
+}
+function begrenze() {
+  zustand.phi = Math.min(45, Math.max(-33, zustand.phi));
+  zustand.g = Math.min(30, Math.max(0, zustand.g));
+  zustand.bw = Math.min(200, Math.max(-200, zustand.bw));
+}
+for (const [k, id] of [["bw", "basis"], ["phi", "phi"], ["g", "greif"]]) {
+  document.getElementById("r-" + id).addEventListener("input", e => {
+    stoppeAblauf(); zustand[k] = parseFloat(e.target.value); begrenze(); stelle();
+  });
+}
+
+// ---------- Ablauf (gleiche Punkte wie die Firmware: Höhe der Greifmitte, Basiswinkel) ----------
+const phiVon = h => Math.asin((h + G_TIEF - S0) / L) * 180 / Math.PI;
+const AUF = 15, ZU = 2, PARK = 95;
+const PUNKTE = [
+  [0, PARK, AUF, 400], [-90, 70, AUF, 0], [-90, 12, AUF, 300], [-90, 12, ZU, 600], [-90, 70, ZU, 0],
+  [90, 70, ZU, 0], [90, 14, ZU, 300], [90, 14, AUF, 600], [90, 70, AUF, 500],
+  [90, 14, AUF, 300], [90, 14, ZU, 600], [90, 70, ZU, 0], [-90, 70, ZU, 0], [-90, 12, ZU, 300],
+  [-90, 12, AUF, 600], [-90, 70, AUF, 0], [0, PARK, AUF, 1200],
+].map(([bw, h, g, p]) => ({ bw, phi: phiVon(h), g, p, h }));
+
+let ablauf = null;
+const status = document.getElementById("status");
+const knopf = document.getElementById("b-ablauf");
+const ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function fahreZu(ziel, fertig) {
+  const start = { ...zustand };
+  // Schulter etwa 45°/s, Basis etwa 60°/s (Schrittmotor), Greifer schnell
+  const dauer = Math.max(350, Math.abs(ziel.phi - start.phi) / 45 * 1000,
+                         Math.abs(ziel.bw - start.bw) / 60 * 1000, Math.abs(ziel.g - start.g) / 60 * 1000) * (ruhig ? 0.01 : 1);
+  const t0 = performance.now();
+  ablauf.schritt = now => {
+    let k = Math.min(1, (now - t0) / dauer); k = k * k * (3 - 2 * k);
+    for (const key of ["phi", "g", "bw"]) zustand[key] = start[key] + (ziel[key] - start[key]) * k;
+    stelle();
+    if (k >= 1) { ablauf.schritt = null; ablauf.warte = now + ziel.p; ablauf.weiter = fertig; }
+  };
+}
+function naechster(i) {
+  if (!ablauf) return;
+  if (i >= PUNKTE.length) { stoppeAblauf(); status.textContent = "Ablauf fertig"; return; }
+  const p = PUNKTE[i];
+  status.textContent = `Punkt ${i + 1}/${PUNKTE.length}: Basis ${p.bw}°, Höhe ${p.h} mm, Greifer ${p.g === ZU ? "zu" : "auf"}`;
+  fahreZu(p, () => naechster(i + 1));
+}
+function stoppeAblauf() {
+  if (!ablauf) return;
+  ablauf = null; knopf.textContent = "Ablauf abspielen"; status.textContent = "Angehalten";
+}
+knopf.addEventListener("click", () => {
+  if (ablauf) { stoppeAblauf(); return; }
+  ablauf = {}; knopf.textContent = "Anhalten"; naechster(0);
+});
+document.getElementById("b-park").addEventListener("click", () => {
+  stoppeAblauf(); Object.assign(zustand, { phi: phiVon(PARK), g: AUF, bw: 0 }); stelle(); status.textContent = "Parkstellung: Greifmitte 95 mm hoch";
+});
+
+// ---------- Ansicht ----------
+function sichtbarkeit() {
+  const ohneDeckel = document.getElementById("s-deckel").checked;
+  const mitKauf = document.getElementById("s-kauf").checked;
+  for (const n of DECKEL) if (teil[n]) teil[n].visible = !ohneDeckel;
+  for (const n of KAUF) if (teil[n]) teil[n].visible = mitKauf;
+}
+document.getElementById("s-deckel").addEventListener("change", sichtbarkeit);
+document.getElementById("s-kauf").addEventListener("change", sichtbarkeit);
+
+// ---------- Laden ----------
+function glbDaten() {
+  const t = atob(window.ROBOTERARM_GLB || "");
+  const b = new Uint8Array(t.length);
+  for (let i = 0; i < t.length; i++) b[i] = t.charCodeAt(i);
+  return b.buffer;
+}
+new GLTFLoader().parse(glbDaten(), "", gltf => {
+  const farbeVon = {};
+  for (const g of Object.values(GRUPPEN)) for (const n of g.teile) farbeVon[n] = g.farbe;
+  gltf.scene.traverse(o => {
+    if (!o.isMesh) return;
+    const n = o.name || (o.parent && o.parent.name);
+    o.geometry.computeVertexNormals();
+    o.material = new THREE.MeshStandardMaterial({
+      color: farbeVon[n] || "#999999", flatShading: true,
+      metalness: GRUPPEN.rad.teile.includes(n) || n === "motor" || n === "muenzen" ? 0.55 : 0.05,
+      roughness: n.startsWith("finger") ? 0.9 : 0.55,
+      transparent: n === "getriebedeckel", opacity: n === "getriebedeckel" ? 0.45 : 1,
+    });
+    o.matrixAutoUpdate = false; o.matrix.identity();
+    teil[n] = o;
+  });
+  for (const o of Object.values(teil)) wurzel.add(o);
+  document.getElementById("laden").hidden = true;
+  sichtbarkeit(); stelle();
+}, () => {
+  document.getElementById("laden").textContent = "Das Modell konnte nicht geladen werden. Bitte die Seite neu laden.";
+});
+
+renderer.setAnimationLoop(now => {
+  if (ablauf) {
+    if (ablauf.schritt) ablauf.schritt(now);
+    else if (ablauf.weiter && now >= ablauf.warte) { const f = ablauf.weiter; ablauf.weiter = null; f(); }
+  }
+  steuerung.update();
+  renderer.render(szene, kamera);
+});
+stelle();
+</script>
