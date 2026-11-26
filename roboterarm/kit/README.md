@@ -148,26 +148,30 @@ Alle Dateien liegen in `stl/`. Sie liegen schon richtig herum für den Druck.
 
 ## Verdrahtung
 
+Ausführlicher Plan mit Bildern: siehe `verdrahtung.html` (im Browser öffnen).
+
+> Beim Freenove-Board gehören GPIO 4–13 und 15–18 zur Kamera, 38–40 zur SD-Karte und 35–37 zum Speicher. Deshalb werden nur diese Pins benutzt:
+
 | Bauteil | Anschluss | ESP32-S3 |
 |---|---|---|
-| L293D Pin 1 (EN1) | | GPIO 4 |
-| L293D Pin 2 (IN1) | | GPIO 5 |
-| L293D Pin 7 (IN2) | | GPIO 21 |
+| L293D Pin 1 (EN1) | | 5V (Kanal immer an) |
+| L293D Pin 2 (IN1) | | GPIO 47 |
+| L293D Pin 7 (IN2) | | GPIO 42 |
 | L293D Pin 3 und 6 | Motor | – |
-| L293D Pin 4, 5, 12, 13 | | GND |
+| L293D Pin 4, 5, 12, 13 und 9 | | GND |
 | L293D Pin 8 und 16 | | 5V |
 | Potentiometer | außen | 3V3 und GND |
-| Potentiometer | Mitte | GPIO 2 |
-| SG90 | orange / rot / braun | GPIO 6 / 5V / GND |
-| ULN2003 IN1–IN4 | | GPIO 15, 16, 17, 18 |
+| Potentiometer | Mitte | GPIO 1 |
+| SG90 | orange / rot / braun | GPIO 41 / 5V / GND |
+| ULN2003 IN1–IN4 | | GPIO 2, 3, 45, 46 |
 | ULN2003 + / − | | 5V / GND |
-| LED (lang) über 220 Ω | | GPIO 7, kurzes Bein an GND |
-| Fotowiderstand | | 3V3 → Fotowiderstand → GPIO 1 → 10 kΩ → GND |
-| Taster | | GPIO 14 und GND |
+| LED (langes Bein) über 220 Ω | | 3V3, kurzes Bein an GND (leuchtet dauernd) |
+| Fotowiderstand | | 3V3 → Fotowiderstand → GPIO 14 → 10 kΩ → GND |
+| Taster | | GPIO 21 und GND |
 
-Das 5-V-Netzteil kommt per USB-C an das Board. Motor, Schrittmotor und Servo nehmen ihren Strom vom 5V-Pin.
+Das 5-V-Netzteil (mindestens 2 A) kommt per USB-C an das Board. Motor, Schrittmotor und Servo nehmen ihren Strom vom 5V-Pin. Für 5V und GND je zwei Kabel parallel stecken.
 
-> Der Elko aus dem Kit (z. B. 100 µF) zwischen 5V und GND direkt am L293D verhindert, dass das Board beim Anlaufen des Motors neu startet.
+> Ein Elko (100 µF oder größer) zwischen 5V und GND direkt am L293D verhindert, dass das Board beim Anlaufen des Motors neu startet.
 
 ## Firmware
 
@@ -179,7 +183,7 @@ Das 5-V-Netzteil kommt per USB-C an das Board. Motor, Schrittmotor und Servo neh
 ### Erste Inbetriebnahme
 1. `m 150` eingeben: Der Arm muss sich **heben**. Senkt er sich, oben `MOTOR_RICHTUNG = -1` setzen.
 2. `k` eingeben und der Anleitung folgen: Arm waagerecht, dann 30° hoch. Die Werte werden im ESP32 gespeichert.
-3. `l` eingeben und den Drehteller von Hand drehen. Beim Rock in der Lichtschranke muss die Differenz deutlich kleiner werden. `LDR_DIFF` zwischen die beiden Werte legen.
+3. `l` eingeben und den Drehteller von Hand drehen. Steht der Rock in der Lichtschranke, muss der Wert deutlich kleiner werden. Mit `L <wert>` eine Schwelle zwischen hell und dunkel speichern.
 4. `r` macht die Referenzfahrt der Basis.
 5. `s 60` / `s 105`: Greifer auf und zu. Die Werte stehen oben als `GREIFER_AUF` und `GREIFER_ZU`.
 6. Mit `g <Höhe> <Winkel>` die Punkte A und B anfahren (z. B. `g 12 -90`). Die passenden Werte oben bei `A_unten`, `B_unten` usw. eintragen.

@@ -16,15 +16,15 @@
 #include <Preferences.h>
 
 // ---------- Pins ----------
-const int PIN_EN   = 4;    // L293D Pin 1  (Enable 1,2) – PWM
-const int PIN_IN1  = 5;    // L293D Pin 2
-const int PIN_IN2  = 21;   // L293D Pin 7
-const int PIN_POTI = 2;    // Schleifer Potentiometer (ADC1)
-const int PIN_SG90 = 6;
-const int PIN_ST1 = 15, PIN_ST2 = 16, PIN_ST3 = 17, PIN_ST4 = 18;   // ULN2003 IN1..IN4
-const int PIN_LED  = 7;    // LED der Lichtschranke (über 220 Ohm)
-const int PIN_LDR  = 1;    // Fotowiderstand (Spannungsteiler mit 10 kOhm)
-const int PIN_TASTER = 14; // Taster gegen GND
+// Freenove ESP32-S3 WROOM: Kamera (GPIO 4-13, 15-18), SD-Karte (38-40) und PSRAM (35-37)
+// bleiben frei. Benutzt werden nur Pins ohne Doppelbelegung.
+const int PIN_IN1  = 47;   // L293D Pin 2  (PWM)   – L293D Pin 1 (Enable) fest an 5V
+const int PIN_IN2  = 42;   // L293D Pin 7  (PWM)
+const int PIN_POTI = 1;    // Schleifer Potentiometer (ADC1_CH0)
+const int PIN_SG90 = 41;
+const int PIN_ST1 = 2, PIN_ST2 = 3, PIN_ST3 = 45, PIN_ST4 = 46;   // ULN2003 IN1..IN4 (alle beim Start LOW = Motor aus)
+const int PIN_LDR  = 14;   // Fotowiderstand (Spannungsteiler mit 10 kOhm), LED der Lichtschranke leuchtet dauernd
+const int PIN_TASTER = 21; // Taster gegen GND
 
 // ---------- Geometrie (wie kit.scad) ----------
 const float L_LENKER   = 120.0;  // Lenkerlänge
@@ -36,7 +36,7 @@ const float PHI_MIN = -33.0, PHI_MAX = 45.0;
 // ---------- Basis ----------
 const float SCHRITTE_PRO_GRAD = 4096.0 * 75.0 / 15.0 / 360.0;   // Halbschritt, Zahnkranz 1:5
 const float BASIS_MIN = -200.0, BASIS_MAX = 200.0;
-const int   LDR_DIFF = 300;        // MESSEN: Befehl "l" zeigt die Werte. Fotowiderstand an 3,3 V, 10 kOhm nach GND
+int LDR_SCHWELLE = 1500;           // MESSEN: Befehl "l" zeigt die Werte. Fotowiderstand an 3,3 V, 10 kOhm nach GND
 
 // ---------- Schulter (Werte mit Befehl "k" kalibrieren) ----------
 int   POTI_NULL = 2048;            // ADC-Wert bei phi = 0 (Arm waagerecht)
@@ -68,10 +68,9 @@ float phiIst() { return (potiRoh() - POTI_NULL) / POTI_PRO_GRAD; }
 
 void motor(int pwm) {             // pwm -255..255, positiv = Arm hebt
   pwm *= MOTOR_RICHTUNG;
-  if (pwm == 0) { digitalWrite(PIN_IN1, LOW); digitalWrite(PIN_IN2, LOW); ledcWrite(PIN_EN, 0); return; }
-  digitalWrite(PIN_IN1, pwm > 0 ? HIGH : LOW);
-  digitalWrite(PIN_IN2, pwm > 0 ? LOW : HIGH);
-  ledcWrite(PIN_EN, abs(pwm));
+  // Vorwärts: IN1 = PWM, IN2 = LOW.  Rückwärts: IN1 = LOW, IN2 = PWM.  0 = beide LOW (Motor frei)
+  ledcWrite(PIN_IN1, pwm > 0 ? pwm : 0);
+  ledcWrite(PIN_IN2, pwm < 0 ? -pwm : 0);
 }
 
 // Regelt die Schulter einen Schritt; true = Ziel erreicht
@@ -88,11 +87,7 @@ bool schulterRegeln() {
 //  Basis + Lichtschranke
 // =====================================================================
 bool dunkel() {                   // Rock unterbricht die Lichtschranke
-  digitalWrite(PIN_LED, HIGH); delayMicroseconds(300);
-  int a = analogRead(PIN_LDR);
-  digitalWrite(PIN_LED, LOW);   delayMicroseconds(300);
-  int b = analogRead(PIN_LDR);
-  return (a - b) < LDR_DIFF;      // LED bringt kaum mehr Licht = Rock dazwischen
+  return analogRead(PIN_LDR) < LDR_SCHWELLE;   // wenig Licht am Fotowiderstand = Rock dazwischen
 }
 float basisWinkel() { return basis.currentPosition() / SCHRITTE_PRO_GRAD; }
 
@@ -238,6 +233,7 @@ void hilfe() {
     "  g <h> <w>    Greifmitte auf Höhe h (mm) und Basiswinkel w\n"
     "  s <grad>     Greifer-Servo stellen\n"
     "  l            Lichtschranke 5 s anzeigen\n"
+    "  L <wert>     Schwelle der Lichtschranke speichern\n"
     "  r            Referenzfahrt Basis\n"
     "  a / x        Ablauf starten / stoppen (oder Taster)"));
 }
@@ -276,7 +272,8 @@ void befehl() {
     case 'b': fahre(phiIst(), a); break;
     case 'g': fahreZu(0, a, b); break;
     case 's': greifer.write((int)a); break;
-    case 'l': for (int i = 0; i < 25; i++) { digitalWrite(PIN_LED, HIGH); delay(2); int x = analogRead(PIN_LDR); digitalWrite(PIN_LED, LOW); delay(2); int y = analogRead(PIN_LDR); Serial.printf("LED an %4d  aus %4d  Differenz %4d -> %s\n", x, y, x - y, dunkel() ? "dunkel" : "hell"); delay(200); } break;
+    case 'l': for (int i = 0; i < 25; i++) { Serial.printf("Fotowiderstand %4d  (Schwelle %d) -> %s\n", analogRead(PIN_LDR), LDR_SCHWELLE, dunkel() ? "dunkel" : "hell"); delay(200); } break;
+    case 'L': LDR_SCHWELLE = (int)a; speicher.putInt("ldr", LDR_SCHWELLE); Serial.printf("Schwelle %d gespeichert\n", LDR_SCHWELLE); break;
     case 'r': basisReferenz(); break;
     case 'a': laeuft = true; break;
     case 'x': laeuft = false; motor(0); break;
@@ -286,10 +283,9 @@ void befehl() {
 // =====================================================================
 void setup() {
   Serial.begin(115200);
-  pinMode(PIN_IN1, OUTPUT); pinMode(PIN_IN2, OUTPUT);
-  ledcAttach(PIN_EN, 20000, 8);
+  ledcAttach(PIN_IN1, 20000, 8);
+  ledcAttach(PIN_IN2, 20000, 8);
   motor(0);
-  pinMode(PIN_LED, OUTPUT);
   pinMode(PIN_TASTER, INPUT_PULLUP);
   analogReadResolution(12);
   analogSetPinAttenuation(PIN_POTI, ADC_11db);
@@ -298,6 +294,7 @@ void setup() {
   speicher.begin("roboarm", false);
   POTI_NULL = speicher.getInt("pnull", POTI_NULL);
   POTI_PRO_GRAD = speicher.getFloat("pgrad", POTI_PRO_GRAD);
+  LDR_SCHWELLE = speicher.getInt("ldr", LDR_SCHWELLE);
 
   greifer.setPeriodHertz(50);
   greifer.attach(PIN_SG90, 500, 2400);
