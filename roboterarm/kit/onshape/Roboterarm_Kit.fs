@@ -195,6 +195,10 @@ export const roboterarmKit = defineFeature(function(context is Context, id is Id
             {
                 fertig(w, ZZ(w, 3, p[0], p[1], -H_S + 3, -H_S + 13), "Schulter - Deckelstift", F_GOLD, T_sch, W_PLA);
             }
+            for (var p in BOCK_STIFTE)
+            {
+                fertig(w, ZZ(w, 5, p[0], p[1], -H_S - 6, -H_S + 5.5), "Schulter - Bockstift", F_GOLD, T_sch, W_PETG);
+            }
             teile.schnecke = fertig(w, baueSchnecke(w, wSchnecke), "Schnecke", F_METALL, T_schnecke, W_PETG);
             teile.ritzelM = fertig(w, baueMotorritzel(w, phRitzelM), "Motorritzel", F_METALL, T_ritzelM, W_PETG);
             // Steckachse oben (Parallellenker) mit Hülsen und Clip
@@ -222,7 +226,7 @@ export const roboterarmKit = defineFeature(function(context is Context, id is Id
             fertig(w, rohr(w, 6.15, 7, 0, 19), "Hauptlenker - Distanzrohr 19", F_GOLD, T_arm * Tt(0, -2, 0) * Rx(-90), W_PLA);
             fertig(w, rohr(w, 6.15, 7, 0, 2), "Hauptlenker - Distanzrohr 2", F_GOLD, T_arm * Tt(0, 22, 0) * Rx(-90), W_PLA);
             fertig(w, baueClipGross(w), "Hauptlenker - Clip groß", F_GOLD, T_arm * Tt(0, 32.2, 0) * Rx(-90), W_PETG);
-            fertig(w, baueMuenzdeckel(w), "Hauptlenker - Münzdeckel", F_ARM, T_arm * Tt(-MUENZ_R, 21.2, 0) * Rx(90), W_PLA);
+            fertig(w, baueMuenzdeckel(w), "Hauptlenker - Münzdeckel", F_ARM, T_arm * Tt(-MUENZ_R, -43.4, 0) * Rx(-90), W_PLA);
 
             teile.para = fertig(w, baueParallellenker(w), "Parallellenker", F_STANGE, T_para, W_PETG);
 
@@ -839,13 +843,11 @@ function baueSchulterbock(w is map) returns Query
     {
         wz = append(wz, ZZ(w, 3.1, p[0], p[1], -H_S + 3, -H_S + 13));
     }
-    var b = abzug(w, vereinige(w, teile), wz);
-    var stifte = [b];
     for (var p in BOCK_STIFTE)
     {
-        stifte = append(stifte, ZZ(w, 5, p[0], p[1], -H_S - 5.5, -H_S + 0.1));
+        wz = append(wz, ZZ(w, 5.1, p[0], p[1], -H_S - 1, -H_S + 7));
     }
-    return vereinige(w, stifte);
+    return abzug(w, vereinige(w, teile), wz);
 }
 
 // Getriebedeckel (rechts außen) mit drei Steckdomen
@@ -980,7 +982,7 @@ function baueSchnecke(w is map, drehung is number) returns Query
     const lw = 30;
     const s = vereinige(w, [
         ZZ(w, 8, 0, 0, -2.7, lw + 2.7),
-        ZZ(w, 5, 0, 0, -11, lw + 20.5),
+        ZZ(w, 5, 0, 0, -11, lw + 20),
         zahnrad(w, ST_M, ST_Z2, lw + 16, lw + 20, 0),
         schneckenGewinde(w, lw)
     ]);
@@ -1017,11 +1019,11 @@ function baueHauptlenker(w is map) returns Query
     const vorne = stab([0, 0], 13, [L, 0], 8);
     const hinten = stab([0, 0], 13, [-MUENZ_R, 0], 7);
     const lenker = PXV(w, HL_Y1, HL_Y2, [[0, 0, 13], [L, 0, 8], [-MUENZ_R, 0, 7]], [vorne.poly, hinten.poly]);
-    const h = vereinige(w, [lenker, ZY(w, MUENZ_D + 3.2, -20, 20, -MUENZ_R, 0)]);
+    const h = vereinige(w, [lenker, ZY(w, MUENZ_D + 3.2, -42.2, HL_Y2, -MUENZ_R, 0)]);     // Magazin seitlich, bündig mit der Lenkerseite
     return abzug(w, h, [
         prismaY(w, HL_Y1 - 1, HL_Y2 + 1, sechseck(10.45, 0, 0, 0)),
         ZY(w, STIFT_D + 0.3, HL_Y1 - 1, HL_Y2 + 1, L, 0),
-        ZY(w, MUENZ_D, -18.8, 25, -MUENZ_R, 0)
+        ZY(w, MUENZ_D, -44, HL_Y2 - 1.2, -MUENZ_R, 0)
     ]);
 }
 
@@ -1259,7 +1261,7 @@ function baueMuenzen(w is map, T is Transform)
 {
     for (var i = 0; i < 15; i += 1)
     {
-        const y = -18.8 + i * 2.33;
+        const y = -3.2 - (i + 1) * 2.33;
         const m = vereinige(w, [ZY(w, 23.25, y, y + 2.33, -MUENZ_R, 0)]);
         fertig(w, m, "Hauptlenker - Münze 1 Euro", F_MUENZE, T, W_MESSING);
         setzeMasse(w, m, "1-Euro-Münze", 7.5);

@@ -72,6 +72,21 @@ Das ergibt 1:400. Die Schnecke ist **selbsthemmend**: Wenn der Motor aus ist, bl
 - Abstand von der Mitte: 185 bis 220 mm
 - Drehen: −200° bis +200°
 
+## Druckplatten (Bambu P2S)
+
+In `druckplatten/` liegen alle Teile fertig verteilt auf 256 × 256 mm. Jede Datei ist eine Platte mit einer Einstellung. Einfach in Bambu Studio öffnen: Die Teile bleiben einzelne Objekte und stehen schon richtig.
+
+| Datei | Teile | Einstellung |
+|---|---|---|
+| `platte_1_basis.3mf` | Basis, Kappe, Münzdeckel, Distanzrohre, Hülsen, Klemmplatten | PLA · 0,2 mm · 3 Wände · 20 % |
+| `platte_2_deckelring.3mf` | Deckelring | PLA · 0,2 mm · 3 Wände · 20 % |
+| `platte_3_drehteller.3mf` | Drehteller | PETG · 0,2 mm · 4 Wände · 30 % |
+| `platte_4_arm.3mf` | Schulterbock, Hauptlenker, Handgelenk, Parallellenker, Getriebedeckel | PETG · 0,2 mm · 4 Wände · 40 % Gyroid · Stützen nur unter dem Poti-Halter |
+| `platte_5_zahnraeder.3mf` | Schneckenrad, Schnecke, Ritzel, Achse, Greiferhebel, Steckachsen, Stifte, Clips, Rollenachsen | PETG · 0,12 mm · 100 % · Brim |
+| `platte_6_lager_ersatz.3mf` | 4 Laufrollen, 2 Lagerbuchsen | nur ohne Kugellager 6801 |
+
+Die Fin-Ray-Finger (`finger_tpu_2x.stl`) und das Greifergehäuse sind nicht auf den Platten.
+
 ## Druckliste
 
 Alle Dateien liegen in `stl/`. Sie liegen schon richtig herum für den Druck.
@@ -88,6 +103,7 @@ Alle Dateien liegen in `stl/`. Sie liegen schon richtig herum für den Druck.
 | `schulterbock.stl` | 1 | PETG | 4 Wände, 30 % Gyroid, Stützen nur unter dem Motorhalter |
 | `getriebedeckel.stl` | 1 | PLA | |
 | `deckelstift.stl` | 3 | PLA | |
+| `bockstift.stl` | 4 | PETG | 100 % |
 | `achse.stl` | 1 | PETG | liegt flach, 100 % |
 | `distanzrohr_2/7/19.stl` | je 1 | PLA/PETG | |
 | `lagerbuchse.stl` | 2 | PETG | **nur ohne Lager** |
@@ -147,7 +163,7 @@ Alle Dateien liegen in `stl/`. Sie liegen schon richtig herum für den Druck.
 4. **Schnecke** von rechts durch die zwei Lagerböcke schieben. Der Bund liegt zwischen den Böcken. Das große Stirnrad sitzt außen rechts.
    Danach die Schnecke ein paar Minuten von Hand am Stirnrad drehen, bis Schnecke und Schneckenrad leicht laufen. Ein Tropfen Öl oder Fett hilft.
 5. **Motor** in den Klemmring schieben, bis das Motorritzel ins große Stirnrad greift. Vorher das Motorritzel auf die Motorwelle drücken.
-6. Die 15 Münzen ins Münzmagazin stapeln und den **Münzdeckel** aufdrücken.
+6. Die 15 Münzen ins Münzmagazin stapeln. Die Öffnung zeigt nach links außen. Dann den **Münzdeckel** aufdrücken.
 7. **Parallellenker** oben mit der langen Steckachse befestigen. Reihenfolge von links:
    - linke Seitenwand
    - Hülse 18
@@ -155,7 +171,7 @@ Alle Dateien liegen in `stl/`. Sie liegen schon richtig herum für den Druck.
    - Hülse 8
    - rechte Seitenwand
    - Clip
-8. Den **Schulterbock** mit seinen 4 Stiften in den Drehteller drücken. Die Kabel laufen durch das große Loch in der Grundplatte und die Mittelsäule nach unten.
+8. Die 4 **Bockstifte** in den Drehteller stecken und den **Schulterbock** darauf drücken. Die Kabel laufen durch das große Loch in der Grundplatte und die Mittelsäule nach unten.
 9. Die 3 **Deckelstifte** in die Löcher der Grundplatte stecken. Den **Getriebedeckel** mit seinen Domen darüberdrücken.
 
 ### D – Handgelenk und Greifer

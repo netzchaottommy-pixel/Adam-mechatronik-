@@ -238,10 +238,11 @@ module schulterbock() {
         translate([0,0,-H_s-1]) cylinder(d=44, h=8);
         // Stecklöcher Getriebedeckel
         for (p=deckel_stifte) translate([p[0], p[1], -H_s+3]) cylinder(d=3.1, h=10);
+        for (p=bock_stifte) translate([p[0], p[1], -H_s-1]) cylinder(d=5.1, h=8);   // Löcher für die Bockstifte
     }
     // Stifte nach unten in den Drehteller
-    for (p=bock_stifte) translate([p[0], p[1], -H_s-5.5]) cylinder(d=5, h=5.6);
 }
+module bockstift() cylinder(d=5, h=11.5);     // 4 Stück: Schulterbock -> Drehteller
 deckel_stifte = [[-28, 46],[-28, 27],[68, 46]];   // liegen in den Domen des Getriebedeckels
 deckel_anker  = [[-28, 50],[-32, 27],[68, 50]];   // Dome hängen an diesen Stellen an der Deckelwand
 
@@ -295,7 +296,7 @@ module schnecke() {
     union() {
         linear_extrude(lw, twist=-360*lw/s_lead, slices=round(lw/s_lead*36*schnecke_aufl)) schnecke2d();
         translate([0,0,-2.7]) cylinder(d=8, h=lw+5.4);                           // Bund: liegt an beiden Lagerböcken an
-        translate([0,0,-11]) cylinder(d=5, h=lw+11+20.5);                     // Welle x -26..35.5 (durch das Stirnrad)
+        translate([0,0,-11]) cylinder(d=5, h=lw+11+20);                       // Welle bis Stirnrad-Außenseite
         translate([0,0,lw+16]) zahnrad(st_m, st_z2, 4);                       // Stirnrad x 31..35
     }
 }
@@ -317,11 +318,11 @@ module hauptlenker() difference() {
             stab2d([0,0], [-muenz_r,0], 13, 7);
         }
         // Münzmagazin: Rohr quer zur Lenkerebene
-        translate([-muenz_r, 0, (hl_y2-hl_y1)/2 - 18 - hl_y1 - 6 + 0]) cylinder(d=muenz_d+3.2, h=40);   // y -20..20: Platz für 15 Münzen + Deckel
+        translate([-muenz_r, 0, -32.2]) cylinder(d=muenz_d+3.2, h=40.2);   // Magazin y -42.2..-2, bündig mit der Lenkerseite
     }
     translate([0,0,-1]) linear_extrude(20) sechskant2d(10.45);
     translate([L,0,-1]) cylinder(d=stift_d+0.3, h=20);
-    translate([-muenz_r, 0, (hl_y2-hl_y1)/2 - 18 - hl_y1 - 6 + 1.2]) cylinder(d=muenz_d, h=44);
+    translate([-muenz_r, 0, -34]) cylinder(d=muenz_d, h=34+6.8);          // Bohrung, Boden 1.2 mm an der Lenkerseite
 }
 // Lage des Hauptlenkers: lokale z (Dicke) -> y, lokale y -> z
 module muenzdeckel() difference() {
@@ -462,7 +463,8 @@ module greifer_komplett() {
 module arm_komplett(phi=0) {
     A = [L*cos(phi), L*sin(phi)];
     color("Tomato") ebene(hl_y1) rotate([0,0,phi]) hauptlenker();
-    color("Gold") translate([-muenz_r*cos(phi), -18.8, -muenz_r*sin(phi)]) rotate([-90,0,0]) dummy_muenzen();
+    color("Gold") translate([-muenz_r*cos(phi), -3.2, -muenz_r*sin(phi)]) rotate([90,0,0]) dummy_muenzen();
+    color("Tomato") translate([-muenz_r*cos(phi), -43.4, -muenz_r*sin(phi)]) rotate([-90,0,0]) muenzdeckel();
     color("Khaki") translate([0,0,P_dz]) ebene(pl_y1) rotate([0,0,phi]) parallellenker();
     translate([A[0], 0, A[1]]) {
         color("SlateBlue") handgelenk();
@@ -503,24 +505,25 @@ if (teil == "lagerbuchse")        lagerbuchse();
 if (teil == "drehteller")         translate([0,0,tt_t]) rotate([180,0,0]) drehteller();
 if (teil == "ritzel_basis")       ritzel_basis();
 if (teil == "kappe")              translate([0,0,kappe_h]) rotate([180,0,0]) kappe();
-if (teil == "schulterbock")       translate([0,0,H_s+5.5]) schulterbock();
+if (teil == "schulterbock")       translate([0,0,H_s]) schulterbock();
+if (teil == "bockstift")          bockstift();
 if (teil == "getriebedeckel")     rotate([-90,0,0]) translate([0,-yp-30,0]) getriebedeckel();   // geschlossene Seite liegt auf dem Druckbett
 if (teil == "deckelstift")        deckelstift();
-if (teil == "achse")              translate([0,0,lager_d/2-0.5]) intersection() { rotate([90,0,0]) achse(); translate([-60,-60,-lager_d/2+0.5]) cube([120,120,60]); }
+if (teil == "achse")              translate([0,0,lager_d/2-0.5]) intersection() { achse(); translate([-60,-60,-lager_d/2+0.5]) cube([120,120,60]); }   // liegend, 0.5 mm abgeflacht
 if (teil == "distanzrohr_7")      distanzrohr(7);
 if (teil == "distanzrohr_19")     distanzrohr(19);
 if (teil == "distanzrohr_2")      distanzrohr(2);
 if (teil == "schneckenrad")       schneckenrad();
-if (teil == "schnecke")           translate([0,0,11]) schnecke();
+if (teil == "schnecke")           translate([0,0,50]) rotate([180,0,0]) schnecke();   // Stirnrad liegt auf dem Bett
 if (teil == "motorritzel")        motorritzel();
-if (teil == "hauptlenker")        hauptlenker();
+if (teil == "hauptlenker")        translate([0,0,8]) rotate([180,0,0]) hauptlenker();   // Lenker flach, Magazin zeigt nach oben
 if (teil == "muenzdeckel")        muenzdeckel();
 if (teil == "parallellenker")     parallellenker();
-if (teil == "handgelenk")         translate([0,0,15]) rotate([90,0,0]) handgelenk();
+if (teil == "handgelenk")         translate([0,0,85]) handgelenk();   // steht auf der flachen Unterkante
 if (teil == "greifer_teststand")  translate([0,0,-30]) rotate([180,0,0]) greifer_teststand();
-if (teil == "sperrstift")         sperrstift();
-if (teil == "steckachse_lang")    translate([0,0,1.6]) steckachse(achse_P_l);
-if (teil == "steckachse_kurz")    translate([0,0,1.6]) steckachse(achse_A_l);
+if (teil == "sperrstift")         translate([0,0,1.2]) intersection() { rotate([0,90,0]) sperrstift(); translate([-100,-100,-1.2]) cube([200,200,10]); }   // liegend
+if (teil == "steckachse_lang")    translate([0,0,2.2]) intersection() { rotate([0,90,0]) steckachse(achse_P_l); translate([-100,-100,-2.2]) cube([200,200,20]); }   // liegend
+if (teil == "steckachse_kurz")    translate([0,0,2.2]) intersection() { rotate([0,90,0]) steckachse(achse_A_l); translate([-100,-100,-2.2]) cube([200,200,20]); }
 if (teil == "clip")               clip();
 if (teil == "clip_gross")         clip_gross();
 if (teil == "huelse_1")           huelse(1);
