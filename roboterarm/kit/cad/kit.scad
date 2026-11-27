@@ -242,14 +242,22 @@ module schulterbock() {
     // Stifte nach unten in den Drehteller
     for (p=bock_stifte) translate([p[0], p[1], -H_s-5.5]) cylinder(d=5, h=5.6);
 }
-deckel_stifte = [[-28, 48],[68, 48],[68, 20]];
+deckel_stifte = [[-28, 46],[-28, 27],[68, 46]];   // liegen in den Domen des Getriebedeckels
+deckel_anker  = [[-28, 50],[-32, 27],[68, 50]];   // Dome hängen an diesen Stellen an der Deckelwand
 
 // Getriebedeckel: deckt Schneckenrad, Schnecke, Stirnräder und Motor ab (rechts außen)
 module getriebedeckel() difference() {
-    hull() { translate([-34, yp, -H_s+6]) cube([106, 30, 1]); translate([0, yp, 0]) rotate([-90,0,0]) cylinder(r=37, h=30); translate([60, yp, -14]) rotate([-90,0,0]) cylinder(r=16, h=30); }
-    hull() { translate([-32, yp-1, -H_s+5]) cube([102, 29, 1]); translate([0, yp-1, 0]) rotate([-90,0,0]) cylinder(r=35, h=29); translate([60, yp-1, -14]) rotate([-90,0,0]) cylinder(r=14, h=29); }
+    union() {
+        difference() {
+            hull() { translate([-34, yp, -H_s+6]) cube([106, 30, 1]); translate([0, yp, 0]) rotate([-90,0,0]) cylinder(r=37, h=30); translate([60, yp, -14]) rotate([-90,0,0]) cylinder(r=16, h=30); }
+            hull() { translate([-32, yp-1, -H_s+5]) cube([102, 29, 1]); translate([0, yp-1, 0]) rotate([-90,0,0]) cylinder(r=35, h=29); translate([60, yp-1, -14]) rotate([-90,0,0]) cylinder(r=14, h=29); }
+        }
+        // Steckdome: sitzen auf der Grundplatte, Deckelstifte halten den Deckel
+        for (i=[0:2]) hull() { translate([deckel_stifte[i][0], deckel_stifte[i][1], -H_s+6]) cylinder(d=7, h=10);
+                               translate([deckel_anker[i][0], deckel_anker[i][1], -H_s+6]) cylinder(d=4, h=10); }
+    }
     ZY(16, yp-2, yp+40);                          // Achsende sichtbar
-    for (p=deckel_stifte) translate([p[0], p[1], -H_s]) cylinder(d=3.4, h=12);
+    for (p=deckel_stifte) translate([p[0], p[1], -H_s]) cylinder(d=3.4, h=15);
     translate([66, s_y, mot_z]) rotate([0,90,0]) cylinder(d=8, h=10);   // Luft am Motor
 }
 module deckelstift() cylinder(d=3, h=10);
@@ -309,11 +317,11 @@ module hauptlenker() difference() {
             stab2d([0,0], [-muenz_r,0], 13, 7);
         }
         // Münzmagazin: Rohr quer zur Lenkerebene
-        translate([-muenz_r, 0, (hl_y2-hl_y1)/2 - 18 - hl_y1 - 6 + 0]) cylinder(d=muenz_d+3.2, h=36);
+        translate([-muenz_r, 0, (hl_y2-hl_y1)/2 - 18 - hl_y1 - 6 + 0]) cylinder(d=muenz_d+3.2, h=40);   // y -20..20: Platz für 15 Münzen + Deckel
     }
     translate([0,0,-1]) linear_extrude(20) sechskant2d(10.45);
     translate([L,0,-1]) cylinder(d=stift_d+0.3, h=20);
-    translate([-muenz_r, 0, (hl_y2-hl_y1)/2 - 18 - hl_y1 - 6 + 1.2]) cylinder(d=muenz_d, h=40);
+    translate([-muenz_r, 0, (hl_y2-hl_y1)/2 - 18 - hl_y1 - 6 + 1.2]) cylinder(d=muenz_d, h=44);
 }
 // Lage des Hauptlenkers: lokale z (Dicke) -> y, lokale y -> z
 module muenzdeckel() difference() {
@@ -440,7 +448,7 @@ module greifer_komplett() {
 module arm_komplett(phi=0) {
     A = [L*cos(phi), L*sin(phi)];
     color("Tomato") ebene(hl_y1) rotate([0,0,phi]) hauptlenker();
-    color("Gold") translate([-muenz_r*cos(phi), -18+1.2, -muenz_r*sin(phi)]) rotate([-90,0,0]) dummy_muenzen();
+    color("Gold") translate([-muenz_r*cos(phi), -18.8, -muenz_r*sin(phi)]) rotate([-90,0,0]) dummy_muenzen();
     color("Khaki") translate([0,0,P_dz]) ebene(pl_y1) rotate([0,0,phi]) parallellenker();
     translate([A[0], 0, A[1]]) {
         color("SlateBlue") handgelenk();
@@ -482,7 +490,7 @@ if (teil == "drehteller")         translate([0,0,tt_t]) rotate([180,0,0]) drehte
 if (teil == "ritzel_basis")       ritzel_basis();
 if (teil == "kappe")              translate([0,0,kappe_h]) rotate([180,0,0]) kappe();
 if (teil == "schulterbock")       translate([0,0,H_s+5.5]) schulterbock();
-if (teil == "getriebedeckel")     rotate([90,0,0]) translate([0,-yp-30,0]) getriebedeckel();
+if (teil == "getriebedeckel")     rotate([-90,0,0]) translate([0,-yp-30,0]) getriebedeckel();   // geschlossene Seite liegt auf dem Druckbett
 if (teil == "deckelstift")        deckelstift();
 if (teil == "achse")              translate([0,0,lager_d/2-0.5]) intersection() { rotate([90,0,0]) achse(); translate([-60,-60,-lager_d/2+0.5]) cube([120,120,60]); }
 if (teil == "distanzrohr_7")      distanzrohr(7);
@@ -510,3 +518,4 @@ if (teil == "hebel_antrieb")      greiferhebel(true);
 if (teil == "hebel_mitlaeufer")   greiferhebel_mitlaeufer();
 if (teil == "klemmplatte")        klemmplatte();
 if (teil == "finger_tpu")         finger();
+if (teil == "finger_tpu_2x")      for (y=[0, 28]) translate([0, y, 0]) finger();   // beide Finger in einem Druck

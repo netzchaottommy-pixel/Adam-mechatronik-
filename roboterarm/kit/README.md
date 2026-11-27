@@ -85,6 +85,7 @@ Alle Dateien liegen in `stl/`. Sie liegen schon richtig herum für den Druck.
 | `hebel_antrieb.stl`, `hebel_mitlaeufer.stl` | je 1 | PETG | 100 % |
 | `klemmplatte.stl` | 2 | PLA/PETG | |
 | `finger_tpu.stl` | 2 | **TPU 95A** | 2 Wände, 0 % Füllung, langsam (30 mm/s) |
+| oder `finger_tpu_2x.stl` | 1 | **TPU 95A** | beide Finger in einem Druck |
 
 **Bambu P2S:** Zahnräder, Schnecke und Achsen mit 0,12 mm Schichthöhe drucken, alles andere mit 0,2 mm. TPU aus dem externen Spulenhalter, nicht durch das AMS.
 
@@ -131,7 +132,7 @@ Alle Dateien liegen in `stl/`. Sie liegen schon richtig herum für den Druck.
    - rechte Seitenwand
    - Clip
 8. Den **Schulterbock** mit seinen 4 Stiften in den Drehteller drücken. Die Kabel laufen durch das große Loch in der Grundplatte und die Mittelsäule nach unten.
-9. **Getriebedeckel** aufsetzen und mit den 3 Deckelstiften festdrücken.
+9. Die 3 **Deckelstifte** in die Löcher der Grundplatte stecken. Den **Getriebedeckel** mit seinen Domen darüberdrücken.
 
 ### D – Handgelenk und Greifer
 1. **Handgelenk** mit zwei kurzen Steckachsen an Haupt- und Parallellenker befestigen.
@@ -207,3 +208,7 @@ Ein Teil exportieren:
 ```
 openscad -D 'teil="schulterbock"' -o stl/schulterbock.stl cad/kit.scad
 ```
+
+## Onshape
+
+`onshape/Roboterarm_Kit.fs` baut die komplette Kit-Version als Feature in Onshape auf, mit Kit-Teilen, Elektronik, Werkstoffen und Mate Connectors. Wie du sie einfügst und animierst, steht in `onshape/ANLEITUNG_ONSHAPE.md`.
