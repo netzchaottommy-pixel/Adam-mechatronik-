@@ -347,6 +347,20 @@ module handgelenk() difference() {
     for (z=[0, P_dz]) ZY(stift_d+0.1, -30, 30, 0, z);
     ZY(3.1, -30, 30, hg_flansch_x+2, -83.6);                                                        // Sperrstift
 }
+// Teststand für den Greifer allein: Schienen wie am Handgelenk, Fuß zum Hinstellen.
+// Wird umgedreht benutzt: Fuß auf dem Tisch, Greifer steht aufrecht (Finger oben).
+module greifer_teststand() difference() {
+    union() {
+        translate([hg_flansch_x-4, -26, -85]) cube([4, 52, 55]);                                    // Flanschplatte bis zum Fuß
+        for (s=[-1,1]) translate([hg_flansch_x, s>0 ? 22.2 : -26, -85]) cube([8, 3.8, 36]);       // Schienen
+        for (s=[-1,1]) translate([hg_flansch_x+4.4, s>0 ? 20 : -26, -85]) cube([3.6, 6, 36]);     // Lippen
+        translate([hg_flansch_x, -26, -51.8]) cube([5.5, 52, 2.8]);                                // Anschlag
+        translate([-60, -40, -34]) cube([hg_flansch_x+60, 80, 4]);                                 // Fuß
+        for (s=[-1,1]) translate([-30, s*20-2, -50]) rotate([90,0,0]) translate([0,0,-4])
+            linear_extrude(4) polygon([[0,16],[48,0],[48,16]]);                                    // Stützrippen
+    }
+    ZY(3.1, -30, 30, hg_flansch_x+2, -83.6);                                                        // Sperrstift
+}
 module sperrstift() union() { cylinder(d=3, h=52); cylinder(d=5, h=1.2); }
 
 // Steckachse Ø5 mit Kopf und Clipnut, Clip
@@ -503,6 +517,7 @@ if (teil == "hauptlenker")        hauptlenker();
 if (teil == "muenzdeckel")        muenzdeckel();
 if (teil == "parallellenker")     parallellenker();
 if (teil == "handgelenk")         translate([0,0,15]) rotate([90,0,0]) handgelenk();
+if (teil == "greifer_teststand")  translate([0,0,-30]) rotate([180,0,0]) greifer_teststand();
 if (teil == "sperrstift")         sperrstift();
 if (teil == "steckachse_lang")    translate([0,0,1.6]) steckachse(achse_P_l);
 if (teil == "steckachse_kurz")    translate([0,0,1.6]) steckachse(achse_A_l);

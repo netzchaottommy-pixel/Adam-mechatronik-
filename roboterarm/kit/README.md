@@ -30,6 +30,29 @@ Dazu:
 - **15 × 1-Euro-Münzen** als Gegengewicht im Münzmagazin. Die bekommst du zurück.
 - **Optional: 6 Lager 6801** (12 × 21 × 5). Wenn du keine hast, druckst du stattdessen 4 `laufrolle` und 2 `lagerbuchse`.
 
+## Greifer zuerst allein testen
+
+Bevor der ganze Arm fertig ist, kannst du den Greifer schon ausprobieren.
+
+**Drucken:** `greifer_teststand`, `greifer_gehaeuse`, `hebel_antrieb`, `hebel_mitlaeufer`, 2 × `klemmplatte`, `finger_tpu_2x` (TPU), 1 × `clip`, `sperrstift`.
+
+**Aufbauen:** Greifer wie in Schritt D bauen. Dann mit dem Servo nach unten von oben in die Schienen des Teststands schieben, bis er aufliegt, und den Sperrstift oben quer durchstecken. Die Finger zeigen nach oben.
+
+**Verdrahten:** nur drei Dinge, die Pins sind dieselben wie später beim Arm:
+- SG90: orange an GPIO 41, rot an 5V, braun an GND
+- Potentiometer: außen an 3V3 und GND, Mitte an GPIO 1
+- Taster: an GPIO 21 und GND
+
+**Firmware:** `firmware/Greifer_Test/Greifer_Test.ino` hochladen.
+- Poti drehen: Der Greifer folgt deiner Hand.
+- Taster kurz drücken: Auf/Zu-Modus, jeder Druck öffnet oder schließt.
+- Taster 1 s halten: zurück zur Steuerung mit dem Poti.
+- Im seriellen Monitor: `s` schließt ganz langsam (gut für Eier und Erdbeeren), `d` macht 20 × auf und zu, `a`/`z` legen die Winkel für offen und zu fest.
+
+Probier verschiedene Gegenstände: Ei, Tomate, Schraubdeckel, Stift, Würfel, Schwamm. Gerade bei runden und weichen Teilen siehst du, wie sich die TPU-Finger um die Form legen. Die Winkel, die gut passen, trägst du später in der Arm-Firmware als `GREIFER_AUF` und `GREIFER_ZU` ein.
+
+> Für den Test reicht USB vom PC. Ruckelt der Servo oder startet das Board neu, nimm das 5-V-Netzteil.
+
 ## Wie es funktioniert
 
 **Basis:** Der 28BYJ-48 treibt über ein Ritzel mit 15 Zähnen den Zahnkranz am Drehteller mit 75 Zähnen an (1:5). Der Drehteller läuft auf 4 Rollen. Der Nullpunkt wird mit einer Lichtschranke gefunden: Ein halbrunder Rock am Drehteller verdeckt sie auf 180°. Damit weiß der Arm nach jedem Einschalten wieder, wo er steht. Den letzten Winkel speichert er zusätzlich, damit sich das Kabel nicht aufwickelt.
@@ -76,6 +99,7 @@ Alle Dateien liegen in `stl/`. Sie liegen schon richtig herum für den Druck.
 | `parallellenker.stl` | 1 | PETG | 100 % |
 | `handgelenk.stl` | 1 | PETG | liegt auf der Seite |
 | `sperrstift.stl` | 1 | PETG | |
+| `greifer_teststand.stl` | 1, optional | PLA | zum Testen des Greifers ohne Arm, Fuß liegt auf dem Bett |
 | `steckachse_lang.stl` | 1 | PETG | stehend, 100 % |
 | `steckachse_kurz.stl` | 2 | PETG | stehend, 100 % |
 | `clip.stl` | 3 | PETG | |
